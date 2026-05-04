@@ -8,6 +8,25 @@ export interface AnalysisMetrics {
     fillerCount: number;
     fillerWordsFound: Record<string, number>;
     pausesEstimate: number;
+
+    // New Confidence Metrics
+    hedges: string[];
+    apologies: string[];
+    iTax: number;
+
+    // New Pacing Metrics
+    pacing: {
+        goodPauses: number;
+        badPauses: number;
+        totalPauseTime: number;
+        wpmSpikes: number;
+    };
+
+    // New Vocal Metrics
+    volumeDecay?: {
+        sentenceEndDropoffs: number;
+        averageDropoffDb: number;
+    };
 }
 
 export interface ActionableTip {
@@ -20,7 +39,7 @@ export interface TranscriptionResult {
     text: string;
     metrics: AnalysisMetrics;
     tips: ActionableTip[];
-    words?: Array<{ text: string; startSec: number; endSec: number }>;
+    words: Array<{ text: string; start: number; end: number; confidence: number }>;
 }
 
 export interface TechnicalityHotspot {
