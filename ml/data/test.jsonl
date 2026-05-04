@@ -1,0 +1,3 @@
+{"text": "BM25 and ANN search", "label": 1, "audienceLevel": 0, "domain": "tech"}
+{"text": "That reduces errors compared to a model that guesses from memory.", "label": 0, "audienceLevel": 1, "domain": "general"}
+{"text": "We run hybrid retrieval with BM25, ANN search, and cosine similarity, then feed results into a prompt template with chain-of-thought style reasoning and temperature control.", "label": 1, "audienceLevel": 1, "domain": "general"}

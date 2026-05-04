@@ -1,0 +1,2 @@
+{"text": "Our stack uses Kubernetes, Docker, Redis, and Postgres, and we deploy via CI/CD pipelines with observability through OpenTelemetry, Prometheus, and Grafana.", "label": 1, "audienceLevel": 1, "domain": "general"}
+{"text": "We built a tool that helps people get accurate answers from their own documents.", "label": 0, "audienceLevel": 0, "domain": "tech"}

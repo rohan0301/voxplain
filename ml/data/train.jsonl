@@ -1,0 +1,16 @@
+{"text": "We also use LoRA fine-tuning on a transformer backbone, plus RLHF, to improve response quality across domains.", "label": 1, "audienceLevel": 1, "domain": "general"}
+{"text": "We also use LoRA fine-tuning on a transformer backbone, plus RLHF, to improve response quality across domains.", "label": 1, "audienceLevel": 1, "domain": "general"}
+{"text": "This is useful because it reduces guessing and helps the user trust the result.", "label": 0, "audienceLevel": 1, "domain": "general"}
+{"text": "We run hybrid retrieval with BM25, ANN search, and cosine similarity, then feed results into a prompt template with chain-of-thought style reasoning and temperature control.", "label": 1, "audienceLevel": 1, "domain": "general"}
+{"text": "It works like this: first it searches for the most relevant parts of your files, then it writes an answer using only what it found.", "label": 0, "audienceLevel": 0, "domain": "tech"}
+{"text": "It works like this: first it searches for the most relevant parts of your files, then it writes an answer using only what it found.", "label": 0, "audienceLevel": 1, "domain": "general"}
+{"text": "If the answer can’t be supported by the documents, the tool tells you it doesn’t have enough information instead of making something up.", "label": 0, "audienceLevel": 1, "domain": "general"}
+{"text": "We also use LoRA fine-tuning on a transformer backbone, plus RLHF, to improve response quality across domains.", "label": 1, "audienceLevel": 1, "domain": "general"}
+{"text": "Today I’m pitching a platform that uses LLMs with RAG, vector embeddings, and a reranker to reduce hallucinations.", "label": 1, "audienceLevel": 1, "domain": "general"}
+{"text": "We built a tool that helps people get accurate answers from their own documents.", "label": 0, "audienceLevel": 1, "domain": "general"}
+{"text": "Today I’m pitching a platform that uses LLMs with RAG, vector embeddings, and a reranker to reduce hallucinations.", "label": 1, "audienceLevel": 1, "domain": "general"}
+{"text": "This is useful because it reduces guessing and helps the user trust the result.", "label": 0, "audienceLevel": 0, "domain": "tech"}
+{"text": "When I say “RAG,” I mean the system first searches a knowledge base, then writes an answer using those sources.", "label": 0, "audienceLevel": 1, "domain": "general"}
+{"text": "If the answer can’t be supported by the documents, the tool tells you it doesn’t have enough information instead of making something up.", "label": 0, "audienceLevel": 0, "domain": "tech"}
+{"text": "The key point is: the model answers using verified context.", "label": 0, "audienceLevel": 1, "domain": "general"}
+{"text": "Our stack uses Kubernetes, Docker, Redis, and Postgres, and we deploy via CI/CD pipelines with observability through OpenTelemetry, Prometheus, and Grafana.", "label": 1, "audienceLevel": 1, "domain": "general"}
