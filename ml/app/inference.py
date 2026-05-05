@@ -25,9 +25,14 @@ class ModelService:
 
     def load(self) -> None:
         """Load model + tokenizer from disk into memory."""
+        if not MODEL_DIR.exists():
+            print(f"ERROR: Model directory not found at {MODEL_DIR}")
+            print("Please run 'python train_bert.py' to generate the model or copy the folder manually.")
+            return
+
         print(f"[ModelService] Loading model from {MODEL_DIR} ...")
-        self.tokenizer = AutoTokenizer.from_pretrained(str(MODEL_DIR))
-        self.model = AutoModelForSequenceClassification.from_pretrained(str(MODEL_DIR))
+        self.tokenizer = AutoTokenizer.from_pretrained(str(MODEL_DIR), local_files_only=True)
+        self.model = AutoModelForSequenceClassification.from_pretrained(str(MODEL_DIR), local_files_only=True)
         self.model.eval()
         self.is_loaded = True
         print("[ModelService] Model loaded successfully.")
