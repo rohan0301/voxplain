@@ -9,7 +9,7 @@ import { transcribeAudio, analyzeTechnicality } from './api';
 import type { TranscriptionResult, TechnicalityResult } from './api';
 import { VideoRecorderModal } from './components/VideoRecorder/VideoRecorderModal';
 import { PracticeResults } from './components/VideoRecorder/PracticeResults';
-import { mockVideoAnalysis, type PracticeAnalysisResult, type VideoAnalysisResult } from './types/PracticeResult';
+import type { PracticeAnalysisResult } from './types/PracticeResult';
 import { TopNav } from './components/TopNav';
 import { LandingHero } from './components/LandingHero';
 import { ProjectsView } from './components/ProjectsView';
@@ -181,7 +181,7 @@ function App() {
     }
   };
 
-  const handleVideoAnalyze = async (file: File, metrics?: VideoAnalysisResult) => {
+  const handleVideoAnalyze = async (file: File) => {
     setShowVideoRecorder(false);
     setIsProcessing(true);
     setError(null);
@@ -191,14 +191,10 @@ function App() {
 
     try {
       const transcription = await transcribeAudio(file);
-      const videoAnalysis = metrics || mockVideoAnalysis();
-      setPracticeResult({
-        speech: transcription,
-        video: videoAnalysis
-      });
+      setPracticeResult({ speech: transcription });
     } catch (err) {
       console.error(err);
-      setError("Failed to process video recording.");
+      setError("Failed to process recording.");
     } finally {
       setIsProcessing(false);
     }

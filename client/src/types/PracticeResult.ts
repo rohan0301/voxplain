@@ -17,7 +17,7 @@ export interface VideoAnalysisResult {
 
 export interface PracticeAnalysisResult {
     speech: TranscriptionResult;
-    video: VideoAnalysisResult;
+    video?: VideoAnalysisResult;
 }
 
 export const mockVideoAnalysis = (): VideoAnalysisResult => ({
