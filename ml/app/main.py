@@ -14,17 +14,21 @@ Then visit:
 """
 
 from contextlib import asynccontextmanager
+import os
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from .inference import model_service
+from .inference import model_service, LOAD_BERT_MODEL
+from .metrics import analyze_technicality
 from .models import (
     PredictRequest,
     PredictResponse,
     BatchPredictRequest,
     BatchPredictResponse,
     HealthResponse,
+    MetricsRequest,
+    MetricsResponse,
 )
 
 
@@ -49,14 +53,22 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — allow requests from the Vite dev server and Express server
+configured_origins = [
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+local_dev_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# CORS — allow requests from local dev plus configured deployment origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",   # Vite default
-        "http://localhost:3000",   # Express server
-        "http://localhost:3001",   # alternate dev port
-    ],
+    allow_origins=list(dict.fromkeys([*configured_origins, *local_dev_origins])),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -71,7 +83,7 @@ def health():
     """Check if the service and model are operational."""
     return HealthResponse(
         status="ok",
-        model_loaded=model_service.is_loaded,
+        model_loaded=model_service.is_loaded if LOAD_BERT_MODEL else False,
     )
 
 
@@ -114,3 +126,26 @@ def predict_batch(req: BatchPredictRequest):
         return BatchPredictResponse(results=results)
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
+
+
+@app.post("/analyze/metrics", response_model=MetricsResponse)
+def analyze_metrics(req: MetricsRequest):
+    """
+    Analyze technicality using CPU-friendly metrics (no ML overhead).
+
+    Computes:
+      - Readability (Flesch-Kincaid grade, sentence length)
+      - Jargon detection (domain-specific terms)
+      - Sentence complexity (clauses, passive voice, nesting)
+      - Definition frequency
+      - Concept density
+      - Composite technicality score + risk level
+
+    Runs entirely on CPU with no GPU cost.
+    """
+    result = analyze_technicality(
+        text=req.text,
+        audience_level=req.audience_level,
+        domain=req.domain,
+    )
+    return MetricsResponse(**result)

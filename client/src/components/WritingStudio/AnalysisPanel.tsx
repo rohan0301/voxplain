@@ -177,21 +177,53 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                 ) : (
                     <div className="space-y-6 animate-fade-in pb-4">
 
-                        {/* Summary Card */}
+                        {/* Summary Card (Primary Metric) */}
                         <div className={`p-4 rounded-xl border ${getStatusInfo(analysis.status).color}`}>
                             <div className="flex items-center justify-between mb-2">
-                                <div className="text-xs font-bold uppercase tracking-wider opacity-80">Technical Load</div>
+                                <div className="text-xs font-bold uppercase tracking-wider opacity-80">Technical Load Score</div>
                                 <div className="text-xs font-bold bg-white/60 px-2 py-0.5 rounded text-current">
                                     {getStatusInfo(analysis.status).label}
                                 </div>
                             </div>
                             <div className="flex items-baseline gap-2 mb-3">
-                                <span className="text-3xl font-bold">{analysis.technicalLoadScore}</span>
-                                <span className="text-sm opacity-70">/ {analysis.audienceThreshold} (Target)</span>
+                                <span className="text-4xl font-bold">{analysis.technicalLoadScore}</span>
+                                <span className="text-sm opacity-70">/ {analysis.audienceThreshold}</span>
                             </div>
                             <p className="text-sm opacity-90 leading-relaxed">
                                 {analysis.summary}
                             </p>
+
+                            {/* Metrics Details (under main score) */}
+                            {analysis.metrics && (
+                                <div className="mt-4 pt-4 border-t border-current border-opacity-10 space-y-2">
+                                    <div className="grid grid-cols-2 gap-2 text-sm">
+                                        <div>
+                                            <div className="text-[11px] opacity-70 font-medium">Reading Level</div>
+                                            <div className="text-lg font-bold">{analysis.metrics.readability.flesch_kincaid_grade}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-[11px] opacity-70 font-medium">Jargon Density</div>
+                                            <div className="text-lg font-bold">{(analysis.metrics.jargon.jargon_density * 100).toFixed(0)}%</div>
+                                        </div>
+                                    </div>
+
+                                    {analysis.metrics.jargon.jargon_terms.length > 0 && (
+                                        <div className="pt-2">
+                                            <div className="text-[10px] opacity-70 font-semibold mb-1.5">Terms: {analysis.metrics.jargon.jargon_count}</div>
+                                            <div className="flex flex-wrap gap-1">
+                                                {analysis.metrics.jargon.jargon_terms.slice(0, 5).map(term => (
+                                                    <span key={term} className="px-1.5 py-0.5 bg-white/50 opacity-80 text-current text-[9px] font-medium rounded border border-current border-opacity-20">
+                                                        {term}
+                                                    </span>
+                                                ))}
+                                                {analysis.metrics.jargon.jargon_terms.length > 5 && (
+                                                    <span className="px-1.5 py-0.5 text-[9px] opacity-60">+{analysis.metrics.jargon.jargon_terms.length - 5}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Stats Grid */}

@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Mic, FolderOpen, Clock, Calendar, Target, Zap, AlertTriangle, BookOpen, Activity, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Mic, FolderOpen, Clock, Calendar, Target, Zap, AlertTriangle, BookOpen, Activity, X, Download, Trash2, Plus, Music } from 'lucide-react';
 
 import { Uploader } from './components/Uploader';
 import { Report } from './components/Report';
 import { WritingStudioPage } from './pages/WritingStudioPage';
 import { TeleprompterPage } from './pages/TeleprompterPage';
-import { transcribeAudio, analyzeTechnicality } from './api';
-import type { TranscriptionResult, TechnicalityResult } from './api';
+import { transcribeAudio, analyzeTechnicality, saveRecording, listRecordings, deleteRecording } from './api';
+import type { TranscriptionResult, TechnicalityResult, SavedRecording } from './api';
 import { VideoRecorderModal } from './components/VideoRecorder/VideoRecorderModal';
 import { PracticeResults } from './components/VideoRecorder/PracticeResults';
 import type { PracticeAnalysisResult } from './types/PracticeResult';
@@ -19,25 +19,74 @@ import { EditProjectModal } from './components/EditProjectModal';
 import { AuthModal } from './components/AuthModal';
 import { useAuth } from './hooks/useAuth';
 
+const PROJECTS_STORAGE_PREFIX = 'voxplain_projects:';
+
+const formatProjectDate = (date: Date) =>
+  date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+const getUserProjectsKey = (userId: string) => `${PROJECTS_STORAGE_PREFIX}${userId}`;
+
+const reviveProjects = (rawProjects: Project[]): Project[] =>
+  rawProjects.map(project => ({
+    ...project,
+    lastModifiedDateObj: new Date(project.lastModifiedDateObj),
+  }));
+
+const loadUserProjects = (userId: string): Project[] => {
+  const rawProjects = localStorage.getItem(getUserProjectsKey(userId));
+  if (!rawProjects) return [];
+
+  try {
+    return reviveProjects(JSON.parse(rawProjects) as Project[]);
+  } catch (err) {
+    console.warn('Failed to load saved projects', err);
+    return [];
+  }
+};
+
+const createProjectId = () => {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `p-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
+const formatRecordingTimestamp = (isoDate: string) =>
+  new Date(isoDate).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+
+const estimateSpeechTime = (text: string) => {
+  const trimmed = text.trim();
+  if (!trimmed) return 0;
+
+  const wordCount = trimmed.split(/\s+/).length;
+  return Math.floor((wordCount / 130) * 60);
+};
+
 function App() {
   const [report, setReport] = useState<TranscriptionResult | null>(null);
   const [technicalityResult, setTechnicalityResult] = useState<TechnicalityResult | null>(null);
   const [practiceResult, setPracticeResult] = useState<PracticeAnalysisResult | null>(null);
+  const [savedRecordings, setSavedRecordings] = useState<SavedRecording[]>([]);
+  const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Authentication — Supabase
-  const { isLoggedIn, isLoading: authLoading, signIn, signUp, signOut } = useAuth();
+  const { user, isLoggedIn, isLoading: authLoading, signIn, signUp, signOut } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Projects State
-  const [projects, setProjects] = useState<Project[]>([
-    { id: 'p1', name: 'Quarterly Business Review', lastModified: 'Jan 23, 2026', lastModifiedDateObj: new Date('2026-01-23'), estimatedTimeSec: 195 },
-    { id: 'p2', name: 'Product Launch Speech', lastModified: 'Jan 20, 2026', lastModifiedDateObj: new Date('2026-01-20'), estimatedTimeSec: 420 },
-    { id: 'p3', name: 'Team Sync - Jan 15', lastModified: 'Jan 15, 2026', lastModifiedDateObj: new Date('2026-01-15'), estimatedTimeSec: 120 },
-  ]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [lastOpenedProjectId, setLastOpenedProjectId] = useState<string | null>(null);
+  const [projectsLoadedForUserId, setProjectsLoadedForUserId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
@@ -49,7 +98,7 @@ function App() {
   const [showVideoRecorder, setShowVideoRecorder] = useState(false);
 
   // Shared Script State
-  const [script, setScript] = useState(() => localStorage.getItem('voxplain_saved_script') || '');
+  const [script, setScript] = useState('');
   const [practiceView, setPracticeView] = useState<'studio' | 'teleprompter'>('studio');
 
 
@@ -60,7 +109,23 @@ function App() {
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
     setCurrentView('projects');
-    setLastOpenedProjectId(projects[0]?.id || null);
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    setProjects([]);
+    setSelectedProjectId(null);
+    setLastOpenedProjectId(null);
+    setProjectsLoadedForUserId(null);
+    setEditingProject(null);
+    setShowCreateModal(false);
+    setReport(null);
+    setTechnicalityResult(null);
+    setPracticeResult(null);
+    setSavedRecordings([]);
+    setSelectedRecordingId(null);
+    setScript('');
+    setCurrentView('home');
   };
 
   const handleLogoClick = () => {
@@ -111,16 +176,22 @@ function App() {
     // For now, let's just find it and set it manually.
     const proj = projects.find(p => p.id === projectId);
     if (proj) {
-      if (proj.speechText) setScript(proj.speechText);
+      setScript(proj.speechText || '');
     }
   };
 
   const handleCreateProject = (projectData: Partial<Project>) => {
+    if (!user) {
+      setError('Please log in before creating a project.');
+      return;
+    }
+
+    const now = new Date();
     const newProject: Project = {
-      id: `p${projects.length + 1}`,
+      id: createProjectId(),
       name: projectData.name || 'Untitled Project',
-      lastModified: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      lastModifiedDateObj: new Date(),
+      lastModified: formatProjectDate(now),
+      lastModifiedDateObj: now,
       estimatedTimeSec: projectData.estimatedTimeSec || 0,
       requiredTimeSec: projectData.requiredTimeSec,
       audience: projectData.audience,
@@ -151,13 +222,14 @@ function App() {
   };
 
   const handleUpdateProject = (projectId: string, updates: Partial<Project>) => {
+    const now = new Date();
     setProjects(prev => prev.map(p => {
       if (p.id !== projectId) return p;
       return {
         ...p,
         ...updates,
-        lastModified: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        lastModifiedDateObj: new Date()
+        lastModified: formatProjectDate(now),
+        lastModifiedDateObj: now
       };
     }));
     setEditingProject(null);
@@ -168,6 +240,7 @@ function App() {
     setError(null);
     setReport(null);
     setPracticeResult(null);
+    setSelectedRecordingId(null);
     setCurrentView('transcribe');
 
     try {
@@ -187,11 +260,22 @@ function App() {
     setError(null);
     setReport(null);
     setPracticeResult(null);
+    setSelectedRecordingId(null);
     setCurrentView('transcribe');
 
     try {
       const transcription = await transcribeAudio(file);
+      setReport(transcription);
       setPracticeResult({ speech: transcription });
+      const savedRecording = await saveRecording({
+        file,
+        report: transcription,
+        projectId: selectedProjectId,
+        projectName: activeProject?.name || 'Untitled Session',
+        recordedAt: new Date().toISOString(),
+      });
+      setSavedRecordings(prev => [savedRecording, ...prev]);
+      setSelectedRecordingId(savedRecording.id);
     } catch (err) {
       console.error(err);
       setError("Failed to process recording.");
@@ -204,6 +288,44 @@ function App() {
     setReport(null);
     setPracticeResult(null);
     setError(null);
+    setSelectedRecordingId(null);
+  };
+
+  const handleDeleteRecording = async () => {
+    if (!selectedRecordingId) {
+      handleReset();
+      return;
+    }
+
+    try {
+      await deleteRecording(selectedRecordingId);
+      setSavedRecordings(prev => prev.filter(recording => recording.id !== selectedRecordingId));
+      handleReset();
+    } catch (err) {
+      console.error(err);
+      setError('Failed to delete recording.');
+    }
+  };
+
+  const handleStartNewSession = () => {
+    handleReset();
+    setShowVideoRecorder(true);
+  };
+
+  const handleOpenSavedRecording = (recording: SavedRecording) => {
+    setReport(recording.report);
+    setPracticeResult({ speech: recording.report });
+    setTechnicalityResult(null);
+    setSelectedRecordingId(recording.id);
+    setCurrentView('analyze');
+  };
+
+  const handleDownloadSavedRecording = (recording: SavedRecording) => {
+    if (!recording.audioUrl) return;
+    const a = document.createElement('a');
+    a.href = recording.audioUrl;
+    a.download = recording.fileName || `voxplain-recording-${recording.recordedAt}.webm`;
+    a.click();
   };
 
   // Helper utils for time display
@@ -215,6 +337,8 @@ function App() {
 
   // Helper to get active project object
   const activeProject = projects.find(p => p.id === selectedProjectId);
+  const activeSavedRecording = savedRecordings.find(recording => recording.id === selectedRecordingId) ?? null;
+  const visibleRecordings = savedRecordings.filter(recording => !selectedProjectId || recording.projectId === selectedProjectId);
 
   const handleAnalyze = async () => {
     if (!report?.text) return;
@@ -223,7 +347,11 @@ function App() {
     try {
       const res = await analyzeTechnicality({
         transcriptText: report.text,
-        words: report.words,
+        words: report.words?.map(word => ({
+          text: word.text,
+          startSec: word.start,
+          endSec: word.end,
+        })),
         audienceLevel: activeProject?.audienceLevel,
         requiredTimeSec: activeProject?.requiredTimeSec,
         domain: activeProject?.domain
@@ -241,6 +369,82 @@ function App() {
   // Helper to determine layout mode
   const isWorkspaceView = currentView === 'practice';
 
+  useEffect(() => {
+    if (!user) {
+      setProjects([]);
+      setSelectedProjectId(null);
+      setLastOpenedProjectId(null);
+      setProjectsLoadedForUserId(null);
+      setSavedRecordings([]);
+      setSelectedRecordingId(null);
+      setScript('');
+      return;
+    }
+
+    const savedProjects = loadUserProjects(user.id);
+
+    setProjects(savedProjects);
+    setSavedRecordings([]);
+    setSelectedProjectId(null);
+    setLastOpenedProjectId(savedProjects[0]?.id ?? null);
+    setSelectedRecordingId(null);
+    setScript('');
+    setProjectsLoadedForUserId(user.id);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || projectsLoadedForUserId !== user.id) return;
+
+    localStorage.setItem(getUserProjectsKey(user.id), JSON.stringify(projects));
+  }, [projects, projectsLoadedForUserId, user]);
+
+  useEffect(() => {
+    if (!user || projectsLoadedForUserId !== user.id) return;
+
+    let cancelled = false;
+
+    const loadRecordings = async () => {
+      try {
+        const recordings = await listRecordings(selectedProjectId);
+        if (!cancelled) {
+          setSavedRecordings(recordings);
+        }
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) {
+          setSavedRecordings([]);
+        }
+      }
+    };
+
+    void loadRecordings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectsLoadedForUserId, selectedProjectId, user]);
+
+  useEffect(() => {
+    if (!selectedProjectId || currentView !== 'practice') return;
+
+    setProjects(prev => prev.map(project => {
+      if (project.id !== selectedProjectId || project.speechText === script) return project;
+
+      return {
+        ...project,
+        speechText: script,
+        estimatedTimeSec: estimateSpeechTime(script),
+      };
+    }));
+  }, [currentView, script, selectedProjectId]);
+
+  // Redirect logged-in users from the landing page to the projects view
+  useEffect(() => {
+    if (!authLoading && isLoggedIn && currentView === 'home') {
+      setCurrentView('projects');
+    }
+  }, [authLoading, isLoggedIn, currentView]);
+
   // --- AUTH LOADING STATE ---
   if (authLoading) {
     return (
@@ -248,13 +452,6 @@ function App() {
         <div className="w-10 h-10 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
       </div>
     );
-  }
-
-  // --- Auto-redirect: if logged in and on home, go to projects ---
-  if (isLoggedIn && currentView === 'home') {
-    // We can't call setCurrentView during render, so we use a quick check
-    // This will be caught by the useEffect below, but as a fallback:
-    // Actually, let's just render the workspace view
   }
 
   // --- RENDER LANDING PAGE (HOME) ---
@@ -266,6 +463,8 @@ function App() {
           onModeChange={() => { }} // Disabled on home
           isLoggedIn={isLoggedIn}
           onLoginClick={handleLogin}
+          onLogoutClick={handleLogout}
+          userEmail={user?.email}
           onLogoClick={handleLogoClick}
         />
         <LandingHero
@@ -305,10 +504,9 @@ function App() {
         currentMode={currentView}
         onModeChange={handleNavigation}
         isLoggedIn={isLoggedIn}
-        onLoginClick={async () => {
-          await signOut();
-          setCurrentView('home');
-        }}
+        onLoginClick={handleLogin}
+        onLogoutClick={handleLogout}
+        userEmail={user?.email}
         onLogoClick={handleLogoClick}
       />
 
@@ -396,9 +594,16 @@ function App() {
                       <p className="text-slate-500 text-sm">Upload or record to generate a detailed report.</p>
                     </div>
                     {(report || practiceResult) && (
-                      <button onClick={handleReset} className="text-sm font-medium text-red-500 hover:text-red-600 border border-red-100 bg-red-50 rounded-lg px-3 py-1.5">
-                        Clear
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button onClick={handleDeleteRecording} className="inline-flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-600 border border-red-100 bg-red-50 rounded-lg px-3 py-1.5">
+                          <Trash2 className="w-4 h-4" />
+                          Delete
+                        </button>
+                        <button onClick={handleStartNewSession} className="inline-flex items-center gap-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg px-3 py-1.5">
+                          <Plus className="w-4 h-4" />
+                          Start New Session
+                        </button>
+                      </div>
                     )}
                   </div>
 
@@ -435,13 +640,57 @@ function App() {
                     </div>
                   )}
 
-                  {practiceResult && !isProcessing && (
+                  {practiceResult && !report && !isProcessing && (
                     <PracticeResults data={practiceResult} onReset={handleReset} />
                   )}
 
                   {report && !isProcessing && (
-                    <Report data={report} onReset={() => { }} />
+                    <Report
+                      data={report}
+                      audioSrc={activeSavedRecording?.audioUrl ?? undefined}
+                      recordedAt={activeSavedRecording?.recordedAt}
+                      onDownloadAudio={activeSavedRecording ? () => handleDownloadSavedRecording(activeSavedRecording) : undefined}
+                    />
                   )}
+
+                  <div className="border-t border-slate-100 pt-8">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Previous Recordings</h3>
+                        <p className="text-xs text-slate-500">Recorded sessions are saved automatically.</p>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-400">{visibleRecordings.length} saved</span>
+                    </div>
+
+                    {visibleRecordings.length === 0 ? (
+                      <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
+                        Your saved recordings will appear here after you record a session.
+                      </div>
+                    ) : (
+                      <div className="grid gap-3">
+                        {visibleRecordings.map(recording => (
+                          <button
+                            key={recording.id}
+                            onClick={() => handleOpenSavedRecording(recording)}
+                            className="w-full rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-brand-200 hover:bg-brand-50/30 transition-colors"
+                          >
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="min-w-0 flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                                  <Music className="w-5 h-5" />
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="font-semibold text-slate-900 truncate">{recording.projectName}</div>
+                                  <div className="text-xs text-slate-500">{formatRecordingTimestamp(recording.recordedAt)}</div>
+                                </div>
+                              </div>
+                              <span className="text-xs font-semibold text-brand-600 shrink-0">Open analysis</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -493,6 +742,23 @@ function App() {
                     </div>
                   )}
                 </div>
+
+                {activeSavedRecording && (
+                  <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col md:flex-row md:items-center gap-4 justify-between">
+                    <div className="flex-1">
+                      <div className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Recording Playback</div>
+                      <audio src={activeSavedRecording.audioUrl ?? undefined} controls className="w-full max-w-xl" />
+                      <p className="text-xs text-slate-500 mt-2">Recorded {formatRecordingTimestamp(activeSavedRecording.recordedAt)}</p>
+                    </div>
+                    <button
+                      onClick={() => handleDownloadSavedRecording(activeSavedRecording)}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download Audio
+                    </button>
+                  </div>
+                )}
 
                 {!report?.text ? (
                   <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">

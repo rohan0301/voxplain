@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: voxplain-server
+    runtime: node
+    rootDir: server
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ML_SERVICE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_RECORDINGS_BUCKET
+        value: recordings
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: ASSEMBLYAI_API_KEY
+        sync: false
+
+  - type: web
+    name: voxplain-ml
+    runtime: python
+    rootDir: ml
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    plan: free
+    envVars:
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: LOAD_BERT_MODEL
+        value: false

@@ -44,6 +44,19 @@ An MVP tool for students to practice presentations by recording audio and gettin
    ```
    Client runs at `http://localhost:5173`.
 
+## Environment templates
+
+- Client: [client/.env.example](/C:/Users/dgcam/OneDrive/Desktop/voxplain/client/.env.example)
+- Server: [server/.env.example](/C:/Users/dgcam/OneDrive/Desktop/voxplain/server/.env.example)
+- ML: [ml/.env.example](/C:/Users/dgcam/OneDrive/Desktop/voxplain/ml/.env.example)
+
+## Deployment
+
+- Vercel config for the client: [vercel.json](/C:/Users/dgcam/OneDrive/Desktop/voxplain/vercel.json)
+- Render config for `server` and `ml`: [render.yaml](/C:/Users/dgcam/OneDrive/Desktop/voxplain/render.yaml)
+- Supabase schema and storage setup: [supabase/recordings.sql](/C:/Users/dgcam/OneDrive/Desktop/voxplain/supabase/recordings.sql)
+- Rollout notes: [DEPLOYMENT_PLAN.md](/C:/Users/dgcam/OneDrive/Desktop/voxplain/DEPLOYMENT_PLAN.md)
+
 ## Features
 - **Record Audio**: Browser-based recording with timer.
 - **Upload**: Support for mp3, wav, m4a.

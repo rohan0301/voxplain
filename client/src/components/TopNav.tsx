@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Mic, BarChart2, Type, Mic2, Lock, User, LogIn, UserPlus, FolderOpen } from 'lucide-react';
+import { Mic, BarChart2, Type, Mic2, Lock, User, LogIn, UserPlus, FolderOpen, LogOut } from 'lucide-react';
 import { useState } from 'react';
 
 interface TopNavProps {
@@ -7,10 +7,12 @@ interface TopNavProps {
     onModeChange: (mode: string) => void;
     isLoggedIn: boolean;
     onLoginClick: () => void;
+    onLogoutClick: () => void;
+    userEmail?: string | null;
     onLogoClick?: () => void; // Optional to prevent breaking if not passed immediately, but we will pass it.
 }
 
-export const TopNav = ({ currentMode, onModeChange, isLoggedIn, onLoginClick, onLogoClick }: TopNavProps) => {
+export const TopNav = ({ currentMode, onModeChange, isLoggedIn, onLoginClick, onLogoutClick, userEmail, onLogoClick }: TopNavProps) => {
     const [showUserMenu, setShowUserMenu] = useState(false);
 
     const modes = [
@@ -22,6 +24,15 @@ export const TopNav = ({ currentMode, onModeChange, isLoggedIn, onLoginClick, on
     ];
 
     const isHome = currentMode === '';
+    const userInitials = userEmail
+        ? userEmail
+            .split('@')[0]
+            .split(/[._-]/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(part => part[0]?.toUpperCase())
+            .join('') || 'U'
+        : 'U';
 
     return (
         <nav className={clsx(
@@ -84,8 +95,40 @@ export const TopNav = ({ currentMode, onModeChange, isLoggedIn, onLoginClick, on
                 {/* Right: User Action */}
                 <div className="flex items-center relative">
                     {isLoggedIn ? (
-                        <div className="w-8 h-8 rounded-full bg-brand-100 border border-brand-200 flex items-center justify-center text-brand-700 font-bold text-xs">
-                            RK
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowUserMenu(!showUserMenu)}
+                                className={clsx(
+                                    "w-9 h-9 rounded-full border flex items-center justify-center font-bold text-xs transition-colors focus:outline-none focus:ring-2",
+                                    isHome
+                                        ? "bg-white/10 hover:bg-white/20 border-white/10 text-white focus:ring-white/20"
+                                        : "bg-brand-100 hover:bg-brand-200 border-brand-200 text-brand-700 focus:ring-brand-500/20"
+                                )}
+                                title="Account menu"
+                            >
+                                {userInitials}
+                            </button>
+
+                            {showUserMenu && (
+                                <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden transform origin-top-right transition-all animate-fade-in z-50">
+                                    <div className="px-3 py-2 border-b border-slate-100">
+                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Signed in</p>
+                                        {userEmail && <p className="text-sm text-slate-700 truncate">{userEmail}</p>}
+                                    </div>
+                                    <div className="p-1">
+                                        <button
+                                            onClick={() => {
+                                                onLogoutClick();
+                                                setShowUserMenu(false);
+                                            }}
+                                            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg flex items-center gap-2 font-medium"
+                                        >
+                                            <LogOut className="w-4 h-4" />
+                                            Log out
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="relative">

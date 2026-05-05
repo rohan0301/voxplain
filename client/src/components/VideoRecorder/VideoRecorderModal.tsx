@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRecorder } from '../../hooks/useRecorder';
 import { TeleprompterDisplay } from '../Teleprompter/TeleprompterDisplay';
-import { X, Mic, RefreshCw, Wand2, Download } from 'lucide-react';
+import { X, Mic, Trash2, Wand2, Download } from 'lucide-react';
 import clsx from 'clsx';
 
 interface VideoRecorderModalProps {
@@ -162,12 +162,12 @@ export const VideoRecorderModal: React.FC<VideoRecorderModalProps> = ({ onClose,
                         ) : (
                             <div className="flex space-x-4 bg-black/50 backdrop-blur-md p-2 rounded-2xl border border-white/10">
                                 <button onClick={resetRecording} className="flex flex-col items-center justify-center w-16 h-16 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-all">
-                                    <RefreshCw className="w-6 h-6 mb-1" />
-                                    <span className="text-xs">Retake</span>
+                                    <Trash2 className="w-6 h-6 mb-1" />
+                                    <span className="text-xs">Delete</span>
                                 </button>
                                 <button onClick={handleDownload} className="flex flex-col items-center justify-center w-16 h-16 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-all">
                                     <Download className="w-6 h-6 mb-1" />
-                                    <span className="text-xs">Save</span>
+                                    <span className="text-xs">Download</span>
                                 </button>
 
                                 <div className="w-px h-12 bg-white/20 mx-2" />

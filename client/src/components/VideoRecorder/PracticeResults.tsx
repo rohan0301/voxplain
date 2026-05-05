@@ -22,7 +22,7 @@ export const PracticeResults: React.FC<PracticeResultsProps> = ({ data, onReset 
             </div>
 
             <div className="flex-1 bg-slate-50/30">
-                <SpeechReport data={data.speech} onReset={() => { }} />
+                <SpeechReport data={data.speech} />
             </div>
         </div>
     );

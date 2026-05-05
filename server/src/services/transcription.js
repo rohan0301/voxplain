@@ -1,64 +1,83 @@
 import fs from 'fs';
 import { analyzeTranscript } from '../utils/analyze.js';
 import { getAudioDuration } from '../utils/file_info.js';
+import { analyzeVolumeDecay } from '../utils/audio_analysis.js';
+
 const MOCK_TRANSCRIPT = "So, um, today I want to talk about, like, presentation skills. It is, you know, really important to be clear. Basically, if you practice enough, you will sort of get better at it naturally. I mean, it takes time, but literally anyone can do it.";
+
+const MOCK_WORDS = [
+    { text: "So,", start: 100, end: 400, confidence: 0.99 },
+    { text: "um,", start: 500, end: 800, confidence: 0.99 },
+    { text: "today", start: 900, end: 1200, confidence: 0.99 },
+    { text: "I", start: 1300, end: 1400, confidence: 0.99 },
+    { text: "want", start: 1500, end: 1700, confidence: 0.99 },
+    { text: "to", start: 1800, end: 1900, confidence: 0.99 },
+    { text: "talk", start: 2000, end: 2300, confidence: 0.99 },
+    { text: "about,", start: 2400, end: 2700, confidence: 0.99 },
+    { text: "like,", start: 2800, end: 3100, confidence: 0.99 },
+    { text: "presentation", start: 3200, end: 3800, confidence: 0.99 },
+    { text: "skills.", start: 3900, end: 4400, confidence: 0.99 }
+];
+
 export async function processAudio(filePath) {
     let text = '';
     let duration = 0;
-    // 1. Get Duration
+    let words = [];
+
     duration = await getAudioDuration(filePath);
-    // Fallback duration if metadata fails (approximate for mock or calculation safety)
-    if (!duration || duration === 0) {
-        // If mocking, assume 15 seconds for the mock text
-        duration = process.env.ASSEMBLYAI_API_KEY ? 0 : 15;
-    }
-    // 2. Transcribe
+
     if (process.env.ASSEMBLYAI_API_KEY) {
         try {
-            console.log(`[DEBUG] Starting AssemblyAI Logic with key length: ${process.env.ASSEMBLYAI_API_KEY.length}`);
-            console.log(`[DEBUG] File exists at path? ${fs.existsSync(filePath)}`);
             const { AssemblyAI } = await import('assemblyai');
             const client = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY });
-            console.log("[DEBUG] Calling client.transcripts.transcribe...");
-            const transcript = await client.transcripts.transcribe({
-                audio: filePath
-            });
-            console.log(`[DEBUG] AssemblyAI response status: ${transcript.status}`);
+
+            const transcript = await client.transcripts.transcribe({ audio: filePath });
+
             if (transcript.text) {
                 text = transcript.text;
-                console.log("AssemblyAI Transcription Success:", text.substring(0, 50) + "...");
+                words = transcript.words || [];
             }
-            else {
-                console.warn('AssemblyAI returned empty text. Full response:', JSON.stringify(transcript));
-                text = "";
-            }
-            // AssemblyAI returns duration in seconds (if available in metadata? usually it's in audio_duration but we can check doc. 
-            // actually transcript object has audio_duration in seconds)
+
             if (duration === 0 && transcript.audio_duration) {
                 duration = transcript.audio_duration;
             }
-        }
-        catch (e) {
+        } catch (e) {
             console.error("AssemblyAI Transcription failed, falling back to mock:", e);
             text = MOCK_TRANSCRIPT;
-            if (duration === 0)
-                duration = 15;
+            words = MOCK_WORDS;
+            if (duration === 0) duration = 15;
         }
-    }
-    else {
-        console.log("No ASSEMBLYAI_API_KEY found. Using mock transcription.");
-        // Artificial delay to simulate processing
+    } else {
         await new Promise(r => setTimeout(r, 1500));
         text = MOCK_TRANSCRIPT;
-        if (duration === 0)
-            duration = 15;
+        words = MOCK_WORDS;
+        if (duration === 0) duration = 15;
     }
-    // 3. Analyze
-    const analysis = analyzeTranscript(text, duration);
+
+    let volumeStats = { sentenceEndDropoffs: 0, averageDropoffDb: 0 };
+    if (fs.existsSync(filePath) && words.length > 0) {
+        try {
+            volumeStats = await analyzeVolumeDecay(filePath, words);
+        } catch (vErr) {
+            console.error("Volume analysis failed:", vErr);
+        }
+    }
+
+    const analysis = analyzeTranscript(text, duration, words);
+    analysis.metrics.volumeDecay = volumeStats;
+
+    if (volumeStats.sentenceEndDropoffs > 2) {
+        analysis.tips.push({
+            id: 'volume-decay',
+            type: 'improvement',
+            message: 'You tend to trail off at the end of sentences. Keep your breath support strong until the last word.'
+        });
+    }
+
     return {
         text,
         metrics: analysis.metrics,
-        tips: analysis.tips
+        tips: analysis.tips,
+        words
     };
 }
-//# sourceMappingURL=transcription.js.map

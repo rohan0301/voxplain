@@ -8,9 +8,58 @@ interface AnalyzeInput {
 }
 
 const COMMON_TECHNICAL_TERMS = new Set([
+    // AI/ML Core
+    'transformer', 'attention', 'softmax', 'embedding', 'embeddings', 'neural', 'network', 'deep learning',
+    'machine learning', 'llm', 'llms', 'gpt', 'bert', 'claude', 'llama', 'mistral', 'falcon',
+    'model', 'training', 'inference', 'fine-tuning', 'finetuning', 'pretraining', 'pretraining',
+    'backpropagation', 'gradient', 'optimizer', 'sgd', 'adam', 'loss', 'activation',
+
+    // Modern AI/ML Techniques
+    'attention bottleneck', 'linear attention', 'ssm', 'mamba', 'hybrids', 'scaling laws',
+    'induction head', 'in-context learning', 'prompt engineering', 'chain of thought',
+    'rag', 'retrieval augmented', 'lora', 'qlora', 'adapter', 'prompt tuning', 'prefix tuning',
+    'instruction tuning', 'alignment', 'rlhf', 'dpo', 'ppo', 'supervised fine-tuning',
+    'constitutional ai', 'mechanistic interpretability', 'interpretability', 'sae', 'sparse autoencoders',
+    'residual stream', 'monosemantic', 'polysemantic', 'feature', 'circuit', 'manifold hypothesis',
+    'sample efficiency', 'scaling', 'capability distribution', 'emergent abilities', 'emergence',
+    'ablation', 'probe', 'steering', 'adversarial', 'jailbreak', 'robustness', 'fairness',
+    'bias', 'toxicity', 'harmlessness', 'safety', 'evaluation metrics', 'benchmark',
+
+    // Data & Training
+    'dataset', 'corpus', 'tokenization', 'token', 'tokens', 'vocabulary', 'vocab', 'sequence length',
+    'context window', 'batch size', 'learning rate', 'weight decay', 'dropout', 'regularization',
+    'data augmentation', 'cross-entropy', 'perplexity', 'accuracy', 'f1', 'precision', 'recall',
+    'roc', 'auc', 'confusion matrix', 'overfitting', 'underfitting', 'generalization',
+
+    // Architecture & Layers
+    'convolution', 'convolutional', 'cnn', 'rnn', 'lstm', 'gru', 'gated', 'recurrent',
+    'encoder', 'decoder', 'seq2seq', 'autoencoder', 'vae', 'gan', 'diffusion',
+    'normalization', 'batch norm', 'layer norm', 'instance norm', 'group norm',
+    'skip connection', 'residual', 'bottleneck', 'pooling', 'upsampling', 'downsampling',
+
+    // Vision/NLP Specific
+    'vision transformer', 'vit', 'mha', 'multi-head attention', 'self-attention', 'cross-attention',
+    'nlp', 'natural language processing', 'nlg', 'nlu', 'sentiment analysis', 'named entity',
+    'pos tagging', 'parsing', 'machine translation', 'text generation', 'summarization',
+    'question answering', 'qa', 'semantic similarity', 'paraphrase', 'entailment',
+    'computer vision', 'object detection', 'segmentation', 'classification', 'regression',
+
+    // Optimization & Inference
+    'quantization', 'pruning', 'distillation', 'knowledge distillation', 'compression',
+    'sparsity', 'sparse', 'mixture of experts', 'moe', 'routing', 'load balancing',
+    'batching', 'pipeline parallelism', 'data parallelism', 'model parallelism', 'distributed',
+    'gradient accumulation', 'mixed precision', 'float16', 'int8', 'bfloat16',
+    'inference optimization', 'kv cache', 'flash attention', 'paging', 'vllm',
+
+    // Evaluation & Analysis
+    'metric', 'bleu', 'rouge', 'meteor', 'cer', 'wer', 'human evaluation', 'annotation',
+    'crowdsourcing', 'inter-rater', 'agreement', 'kappa', 'correlation', 'statistical significance',
+    'confidence interval', 'p-value', 'hypothesis testing', 'ablation study', 'sensitivity analysis',
+    'error analysis', 'qualitative analysis', 'case study', 'visualization', 'attention heatmap',
+
+    // Infrastructure
     'kubernetes', 'docker', 'redis', 'postgres', 'postgresql', 'prometheus', 'grafana',
-    'opentelemetry', 'lora', 'transformer', 'embeddings', 'rag', 'llm', 'llms', 'rlhf',
-    'ann', 'bm25', 'api', 'apis', 'cpu', 'gpu', 'tpu', 's3', 'ec2', 'k8s', 'ci/cd',
+    'opentelemetry', 'api', 'apis', 'cpu', 'gpu', 'tpu', 's3', 'ec2', 'k8s', 'ci/cd',
     'pipeline', 'algorithm', 'heuristic', 'latency', 'throughput', 'bandwidth', 'json',
     'xml', 'yaml', 'html', 'css', 'javascript', 'typescript', 'python', 'rust', 'go',
     'java', 'c++', 'sql', 'nosql', 'kafka', 'grpc', 'rest', 'graphql', 'jwt', 'oauth',

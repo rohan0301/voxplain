@@ -73,13 +73,17 @@ export function analyzeTranscript(
     const PAUSE_THRESHOLD = 500; // ms
 
     for (let i = 0; i < words.length - 1; i++) {
-        const gap = words[i+1].start - words[i].end;
+        const currentWord = words[i];
+        const nextWord = words[i + 1];
+        if (!currentWord || !nextWord) continue;
+
+        const gap = nextWord.start - currentWord.end;
         if (gap > PAUSE_THRESHOLD) {
             totalPauseTime += gap;
             // Check if word[i] ended with punctuation
-            if (/[.!?]$/.test(words[i].text.trim())) {
+            if (/[.!?]$/.test(currentWord.text.trim())) {
                 goodPauses++;
-            } else if (/,$/.test(words[i].text.trim())) {
+            } else if (/,$/.test(currentWord.text.trim())) {
                 goodPauses++; // Commas are also good boundaries
             } else {
                 badPauses++;
@@ -142,17 +146,30 @@ export function analyzeTranscript(
 
     // Pacing Tips
     if (badPauses > goodPauses && badPauses > 3) {
-        tips.push({ 
-            id: 'mid-sentence-pauses', 
-            type: 'improvement', 
-            message: 'You have many pauses in the middle of thoughts. Try to finish your sentence before pausing for effect.' 
+        tips.push({
+            id: 'mid-sentence-pauses',
+            type: 'improvement',
+            message: 'You have many pauses in the middle of thoughts. Try to finish your sentence before pausing for effect.'
         });
     } else if (goodPauses > 5) {
-        tips.push({ 
-            id: 'good-pausing', 
-            type: 'positive', 
-            message: 'Excellent use of strategic pausing at sentence boundaries!' 
+        tips.push({
+            id: 'good-pausing',
+            type: 'positive',
+            message: 'Excellent use of strategic pausing at sentence boundaries!'
         });
+    }
+
+    // Filler Tips
+    if (totalFillers > 5) {
+        tips.push({ id: 'too-many-fillers', type: 'improvement', message: `You used ${totalFillers} filler words (um, like, you know…). Replace them with a brief deliberate pause — silence is more powerful than filler.` });
+    } else if (totalFillers > 2) {
+        tips.push({ id: 'some-fillers', type: 'improvement', message: `You used ${totalFillers} filler words. Try to pause instead of filling silence — it sounds more confident.` });
+    } else if (totalFillers === 0) {
+        tips.push({ id: 'no-fillers', type: 'positive', message: 'Zero filler words detected. Clean, confident delivery.' });
+    }
+
+    if (tips.length === 0) {
+        tips.push({ id: 'all-clear', type: 'positive', message: 'Great overall delivery! Pacing, confidence, and clarity are all on point.' });
     }
 
     return { metrics, tips };

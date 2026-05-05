@@ -15,20 +15,22 @@ async function getMeanVolume(filePath: string, startMs: number, endMs: number): 
         const startSec = (startMs / 1000).toFixed(3);
         const durationSec = ((endMs - startMs) / 1000).toFixed(3);
 
-        // ffmpeg -ss START -t DURATION -i FILE -filter:a volumedetect -f null /dev/null
+        const nullDevice = process.platform === 'win32' ? 'NUL' : '/dev/null';
         const ffmpeg = spawn(pathToFfmpeg as unknown as string, [
             '-ss', startSec,
             '-t', durationSec,
             '-i', filePath,
             '-filter:a', 'volumedetect',
             '-f', 'null',
-            '/dev/null'
+            nullDevice
         ]);
 
         let output = '';
         ffmpeg.stderr.on('data', (data) => {
             output += data.toString();
         });
+
+        ffmpeg.on('error', () => resolve(-50));
 
         ffmpeg.on('close', () => {
             const match = output.match(/mean_volume: ([\-\d\.]+) dB/);
@@ -48,7 +50,8 @@ export async function analyzeVolumeDecay(
     // 1. Identify sentence ends
     const sentenceEnds: number[] = [];
     for (let i = 0; i < words.length; i++) {
-        if (/[.!?]$/.test(words[i].text.trim())) {
+        const word = words[i];
+        if (word && /[.!?]$/.test(word.text.trim())) {
             sentenceEnds.push(i);
         }
     }
@@ -61,6 +64,7 @@ export async function analyzeVolumeDecay(
     const sampleEnds = sentenceEnds.slice(0, 10);
     let totalDropoff = 0;
     let dropoffCount = 0;
+    let measuredCount = 0;
 
     for (const endIdx of sampleEnds) {
         // Measure last word volume
@@ -68,6 +72,7 @@ export async function analyzeVolumeDecay(
         // Measure sentence average volume (simplified: look at 3 words before end)
         const startIdx = Math.max(0, endIdx - 4);
         const sentenceStart = words[startIdx];
+        if (!lastWord || !sentenceStart) continue;
         
         const [lastWordVol, sentenceAvgVol] = await Promise.all([
             getMeanVolume(filePath, lastWord.start, lastWord.end),
@@ -79,10 +84,11 @@ export async function analyzeVolumeDecay(
             dropoffCount++;
         }
         totalDropoff += dropoff;
+        measuredCount++;
     }
 
     return {
         sentenceEndDropoffs: dropoffCount,
-        averageDropoffDb: Math.round(totalDropoff / sampleEnds.length)
+        averageDropoffDb: measuredCount > 0 ? Math.round(totalDropoff / measuredCount) : 0
     };
 }

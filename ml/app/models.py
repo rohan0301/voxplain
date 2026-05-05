@@ -76,3 +76,42 @@ class HealthResponse(BaseModel):
 
     status: str
     model_loaded: bool
+
+
+# ── Technicality Metrics Models ─────────────────────────────────
+
+
+class MetricsRequest(BaseModel):
+    """Request for technicality metrics analysis."""
+
+    text: str = Field(
+        ...,
+        min_length=1,
+        description="The text to analyze for technicality/confusion.",
+    )
+    audience_level: int = Field(
+        default=1,
+        ge=0,
+        le=3,
+        description="Target audience expertise: 0 = novice, 1 = some knowledge, 2 = strong background, 3 = expert.",
+    )
+    domain: str = Field(
+        default="general",
+        description="Subject domain, e.g. 'tech', 'finance', 'medical', 'general'.",
+        examples=["tech", "finance", "general"],
+    )
+
+
+class MetricsResponse(BaseModel):
+    """Detailed metrics response (all CPU-based, no ML)."""
+
+    readability: dict
+    jargon: dict
+    sentence_complexity: dict
+    definitions: dict
+    concept_density: dict
+    technicality_score: float = Field(
+        description="Composite score 0-1 where 0=easy and 1=highly confusing."
+    )
+    risk_level: str = Field(description="'low', 'medium', or 'high'.")
+    recommendations: List[str]

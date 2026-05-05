@@ -42,6 +42,17 @@ export interface TranscriptionResult {
     words: Array<{ text: string; start: number; end: number; confidence: number }>;
 }
 
+export interface SavedRecording {
+    id: string;
+    projectId: string | null;
+    projectName: string;
+    recordedAt: string;
+    audioUrl: string | null;
+    audioType: string;
+    fileName: string;
+    report: TranscriptionResult;
+}
+
 export interface TechnicalityHotspot {
     sentence: string;
     startWordIndex?: number;
@@ -99,6 +110,67 @@ export async function transcribeAudio(file: File): Promise<TranscriptionResult> 
     return response.json();
 }
 
+export interface SaveRecordingPayload {
+    file: File;
+    report: TranscriptionResult;
+    projectId?: string | null;
+    projectName?: string | null;
+    recordedAt?: string;
+}
+
+export async function saveRecording(payload: SaveRecordingPayload): Promise<SavedRecording> {
+    const formData = new FormData();
+    formData.append('audio', payload.file);
+    formData.append('report', JSON.stringify(payload.report));
+    if (payload.projectId) formData.append('projectId', payload.projectId);
+    if (payload.projectName) formData.append('projectName', payload.projectName);
+    if (payload.recordedAt) formData.append('recordedAt', payload.recordedAt);
+
+    const headers = await authHeaders();
+
+    const response = await fetch(`${API_URL}/recordings`, {
+        method: 'POST',
+        headers,
+        body: formData,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to save recording');
+    }
+
+    return response.json();
+}
+
+export async function listRecordings(projectId?: string | null): Promise<SavedRecording[]> {
+    const headers = await authHeaders();
+    const params = new URLSearchParams();
+    if (projectId) params.set('projectId', projectId);
+
+    const response = await fetch(`${API_URL}/recordings${params.size ? `?${params.toString()}` : ''}`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to load recordings');
+    }
+
+    return response.json();
+}
+
+export async function deleteRecording(recordingId: string): Promise<void> {
+    const headers = await authHeaders();
+
+    const response = await fetch(`${API_URL}/recordings/${recordingId}`, {
+        method: 'DELETE',
+        headers,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to delete recording');
+    }
+}
+
 export interface AnalyzePayload {
     transcriptText: string;
     words?: Array<{ text: string; startSec: number; endSec: number }>;
@@ -149,4 +221,58 @@ export async function saveLabel(payload: LabelPayload): Promise<void> {
 
     const resJson = await response.json();
     console.log('[API] Save label success:', resJson);
+}
+
+export interface MetricsRequest {
+    text: string;
+    audienceLevel?: number;
+    domain?: string;
+}
+
+export interface MetricsResponse {
+    readability: {
+        flesch_kincaid_grade: number;
+        avg_sentence_length: number;
+    };
+    jargon: {
+        jargon_terms: string[];
+        jargon_count: number;
+        jargon_density: number;
+        domain: string;
+    };
+    sentence_complexity: {
+        avg_clause_count: number;
+        passive_voice_ratio: number;
+        max_nesting_depth: number;
+        complexity_score: number;
+    };
+    definitions: {
+        definition_sentences: string[];
+        definition_count: number;
+        definition_ratio: number;
+    };
+    concept_density: {
+        avg_new_concepts_per_sentence: number;
+        total_unique_concepts: number;
+        concept_density_score: number;
+    };
+    technicality_score: number;
+    risk_level: 'low' | 'medium' | 'high';
+    recommendations: string[];
+}
+
+export async function getMetrics(payload: MetricsRequest): Promise<MetricsResponse> {
+    const headers = await authHeaders();
+
+    const response = await fetch(`${API_URL}/analyze/metrics`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        throw new Error('Metrics analysis failed');
+    }
+
+    return response.json();
 }

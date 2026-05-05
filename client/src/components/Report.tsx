@@ -1,14 +1,16 @@
 import React from 'react';
 import type { TranscriptionResult } from '../api';
-import { Clock, AlignLeft, AlertTriangle, Gauge, ShieldCheck, Zap, Volume2, TrendingDown } from 'lucide-react';
+import { Clock, AlertTriangle, Gauge, ShieldCheck, Zap, Volume2, Download } from 'lucide-react';
 import clsx from 'clsx';
 
 interface ReportProps {
     data: TranscriptionResult;
-    onReset: () => void;
+    audioSrc?: string;
+    recordedAt?: string;
+    onDownloadAudio?: () => void;
 }
 
-export const Report: React.FC<ReportProps> = ({ data }) => {
+export const Report: React.FC<ReportProps> = ({ data, audioSrc, recordedAt, onDownloadAudio }) => {
     const { metrics, tips, text } = data;
 
     const highlightFillers = (text: string, fillers: Record<string, number>) => {
@@ -30,6 +32,38 @@ export const Report: React.FC<ReportProps> = ({ data }) => {
 
     return (
         <div className="w-full space-y-8 animate-in fade-in duration-500">
+
+            {audioSrc && (
+                <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5 flex flex-col md:flex-row md:items-center gap-4 justify-between">
+                    <div className="flex-1">
+                        <div className="flex items-center gap-2 text-slate-800 font-bold text-sm uppercase tracking-tight mb-3">
+                            <Volume2 className="w-4 h-4 text-brand-600" />
+                            <span>Your Recording</span>
+                        </div>
+                        <audio src={audioSrc} controls className="w-full max-w-xl" />
+                        {recordedAt && (
+                            <p className="text-xs text-slate-500 mt-2">
+                                Recorded {new Date(recordedAt).toLocaleString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                })}
+                            </p>
+                        )}
+                    </div>
+                    {onDownloadAudio && (
+                        <button
+                            onClick={onDownloadAudio}
+                            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                            <Download className="w-4 h-4" />
+                            Download Audio
+                        </button>
+                    )}
+                </div>
+            )}
 
             {/* Main Metrics Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

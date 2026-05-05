@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react';
 import { analyzeTechnicality } from '../../api';
-import type { TechnicalityResult } from '../../api';
+import type { TechnicalityResult, MetricsResponse } from '../../api';
 import type { AudienceLevel } from '../../types/Project';
 
 export interface TextAnalysis extends TechnicalityResult {
     wordCount: number;
     sentenceCount: number;
     avgWordsPerSentence: number;
+    metrics?: MetricsResponse;
 }
 
 export function useTextAnalysis() {
@@ -33,7 +34,7 @@ export function useTextAnalysis() {
             const sentenceCount = sentences.length;
             const avgWordsPerSentence = parseFloat((wordCount / sentenceCount).toFixed(1));
 
-            // Call API
+            // Call API (now includes metrics enrichment server-side)
             const { technicality } = await analyzeTechnicality({
                 transcriptText: text,
                 audienceLevel,
@@ -44,7 +45,8 @@ export function useTextAnalysis() {
                 ...technicality,
                 wordCount,
                 sentenceCount,
-                avgWordsPerSentence
+                avgWordsPerSentence,
+                metrics: (technicality as any).metrics
             });
 
         } catch (err) {

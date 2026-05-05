@@ -6,11 +6,11 @@ the DistilBERT model once at startup and serves predictions in-memory.
 """
 
 import numpy as np
-import torch
+import os
 from pathlib import Path
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 MODEL_DIR = Path(__file__).resolve().parent.parent / "model_distilbert"
+LOAD_BERT_MODEL = os.getenv("LOAD_BERT_MODEL", "true").lower() in {"1", "true", "yes", "on"}
 
 AUDIENCE_MAP = {0: "novice", 1: "some", 2: "strong", 3: "expert"}
 
@@ -21,18 +21,31 @@ class ModelService:
     def __init__(self) -> None:
         self.model = None
         self.tokenizer = None
+        self._torch = None
         self.is_loaded: bool = False
 
     def load(self) -> None:
         """Load model + tokenizer from disk into memory."""
+        if not LOAD_BERT_MODEL:
+            print("[ModelService] LOAD_BERT_MODEL is disabled. Skipping model load.")
+            return
+
         if not MODEL_DIR.exists():
             print(f"ERROR: Model directory not found at {MODEL_DIR}")
             print("Please run 'python train_bert.py' to generate the model or copy the folder manually.")
             return
 
+        try:
+            import torch
+            from transformers import AutoTokenizer, AutoModelForSequenceClassification
+        except ImportError as exc:
+            print(f"[ModelService] Missing BERT dependencies: {exc}")
+            return
+
         print(f"[ModelService] Loading model from {MODEL_DIR} ...")
         self.tokenizer = AutoTokenizer.from_pretrained(str(MODEL_DIR), local_files_only=True)
         self.model = AutoModelForSequenceClassification.from_pretrained(str(MODEL_DIR), local_files_only=True)
+        self._torch = torch
         self.model.eval()
         self.is_loaded = True
         print("[ModelService] Model loaded successfully.")
@@ -41,6 +54,7 @@ class ModelService:
         """Release model resources."""
         self.model = None
         self.tokenizer = None
+        self._torch = None
         self.is_loaded = False
         print("[ModelService] Model unloaded.")
 
@@ -70,9 +84,9 @@ class ModelService:
             max_length=256,
         )
 
-        with torch.no_grad():
+        with self._torch.no_grad():
             logits = self.model(**enc).logits
-            probs = torch.softmax(logits, dim=-1).cpu().numpy()[0]
+            probs = self._torch.softmax(logits, dim=-1).cpu().numpy()[0]
 
         p_clear = float(probs[0])
         p_confusing = float(probs[1])
