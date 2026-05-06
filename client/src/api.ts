@@ -54,6 +54,19 @@ export interface SavedRecording {
     report: TranscriptionResult;
 }
 
+export interface SavedSpeech {
+    id: string;
+    projectId: string | null;
+    projectName: string;
+    title: string;
+    content: string;
+    wordCount: number;
+    audienceLevel: AudienceLevel | null;
+    domain: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
 interface ProjectRow {
     id: string;
     user_id: string;
@@ -66,6 +79,20 @@ interface ProjectRow {
     speech_text: string | null;
     audience_level: AudienceLevel | null;
     domain: Project['domain'] | null;
+}
+
+interface SavedSpeechRow {
+    id: string;
+    user_id: string;
+    project_id: string | null;
+    project_name: string | null;
+    title: string | null;
+    content: string;
+    word_count: number | null;
+    audience_level: AudienceLevel | null;
+    domain: string | null;
+    created_at: string;
+    updated_at: string;
 }
 
 const projectSelectColumns = [
@@ -116,6 +143,19 @@ const rowFromProject = (userId: string, project: Project) => ({
     audience_level: project.audienceLevel ?? null,
     domain: project.domain ?? null,
     updated_at: new Date().toISOString(),
+});
+
+const savedSpeechFromRow = (row: SavedSpeechRow): SavedSpeech => ({
+    id: row.id,
+    projectId: row.project_id,
+    projectName: row.project_name || 'Untitled Project',
+    title: row.title || 'Untitled Speech',
+    content: row.content,
+    wordCount: row.word_count ?? row.content.trim().split(/\s+/).filter(Boolean).length,
+    audienceLevel: row.audience_level,
+    domain: row.domain,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
 });
 
 export async function listProjects(userId: string): Promise<Project[]> {
@@ -266,6 +306,67 @@ export async function deleteRecording(recordingId: string): Promise<void> {
     if (!response.ok) {
         throw new Error('Failed to delete recording');
     }
+}
+
+export interface SaveSpeechPayload {
+    userId: string;
+    content: string;
+    projectId?: string | null;
+    projectName?: string | null;
+    title?: string | null;
+    audienceLevel?: AudienceLevel | null;
+    domain?: string | null;
+}
+
+export async function listSavedSpeeches(userId: string, projectId?: string | null): Promise<SavedSpeech[]> {
+    let query = supabase
+        .from('speeches')
+        .select('id,user_id,project_id,project_name,title,content,word_count,audience_level,domain,created_at,updated_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (projectId) {
+        query = query.eq('project_id', projectId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return ((data ?? []) as unknown as SavedSpeechRow[]).map(savedSpeechFromRow);
+}
+
+export async function saveSpeech(payload: SaveSpeechPayload): Promise<SavedSpeech> {
+    const content = payload.content.trim();
+    const wordCount = content ? content.split(/\s+/).length : 0;
+    const now = new Date().toISOString();
+
+    const { data, error } = await supabase
+        .from('speeches')
+        .insert({
+            user_id: payload.userId,
+            project_id: payload.projectId ?? null,
+            project_name: payload.projectName ?? 'Untitled Project',
+            title: payload.title?.trim() || `Speech draft - ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+            content,
+            word_count: wordCount,
+            audience_level: payload.audienceLevel ?? null,
+            domain: payload.domain ?? null,
+            updated_at: now,
+        })
+        .select('id,user_id,project_id,project_name,title,content,word_count,audience_level,domain,created_at,updated_at')
+        .single();
+
+    if (error || !data) throw error || new Error('Failed to save speech');
+    return savedSpeechFromRow(data as unknown as SavedSpeechRow);
+}
+
+export async function deleteSavedSpeech(speechId: string): Promise<void> {
+    const { error } = await supabase
+        .from('speeches')
+        .delete()
+        .eq('id', speechId);
+
+    if (error) throw error;
 }
 
 export interface AnalyzePayload {

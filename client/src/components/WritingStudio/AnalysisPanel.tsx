@@ -134,6 +134,36 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
         return allSentences.filter(s => !hotspotTexts.has(s));
     }, [allSentences, analysis]);
 
+    const focusRiskSentence = React.useMemo(() => {
+        if (!analysis) return null;
+
+        const scoreSentence = (sentence: string, termCount = 0, reasonCount = 0) => {
+            const wordCount = sentence.trim().split(/\s+/).filter(Boolean).length;
+            const lengthPenalty = wordCount > 28 ? 3 : wordCount > 20 ? 2 : wordCount > 14 ? 1 : 0;
+            return termCount * 4 + reasonCount * 3 + lengthPenalty;
+        };
+
+        if (analysis.hotspots.length > 0) {
+            return analysis.hotspots
+                .map(hotspot => ({
+                    sentence: hotspot.sentence.trim(),
+                    reasons: hotspot.reasons,
+                    score: scoreSentence(hotspot.sentence, hotspot.terms.length, hotspot.reasons.length),
+                }))
+                .sort((a, b) => b.score - a.score)[0];
+        }
+
+        if (allSentences.length === 0) return null;
+
+        return allSentences
+            .map(sentence => ({
+                sentence,
+                reasons: ['This is the longest dense stretch in the draft, so it may need an extra pause or clearer setup.'],
+                score: scoreSentence(sentence),
+            }))
+            .sort((a, b) => b.score - a.score)[0];
+    }, [allSentences, analysis]);
+
 
     return (
         <div className="h-full bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
@@ -225,6 +255,22 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                                 </div>
                             )}
                         </div>
+
+                        {/* Focus Risk Sentence */}
+                        {focusRiskSentence && (
+                            <div className="p-4 rounded-xl border border-amber-200 bg-amber-50">
+                                <div className="flex items-center text-sm font-bold text-amber-900 mb-2">
+                                    <AlertTriangle className="w-4 h-4 mr-2 text-amber-600" />
+                                    Audience Focus Risk
+                                </div>
+                                <p className="text-sm text-amber-950 leading-relaxed italic border-l-2 border-amber-300 pl-3">
+                                    "{focusRiskSentence.sentence}"
+                                </p>
+                                <p className="text-xs text-amber-800 mt-2 leading-relaxed">
+                                    This is the sentence where listeners are most likely to lose focus. Break it up, define terms earlier, or add a quick example before it.
+                                </p>
+                            </div>
+                        )}
 
                         {/* Stats Grid */}
                         <div className="grid grid-cols-2 gap-3">

@@ -2,10 +2,9 @@ import { ArrowRight } from 'lucide-react';
 
 interface LandingHeroProps {
     onGetStarted: () => void;
-    onLogin: () => void;
 }
 
-export const LandingHero = ({ onGetStarted, onLogin }: LandingHeroProps) => {
+export const LandingHero = ({ onGetStarted }: LandingHeroProps) => {
     return (
         <div className="relative min-h-[calc(100vh-64px)] w-full flex flex-col items-center justify-between bg-[#111111] overflow-hidden font-sans">
             {/* Background Image & Overlay */}
@@ -44,13 +43,6 @@ export const LandingHero = ({ onGetStarted, onLogin }: LandingHeroProps) => {
                     >
                         Get Started
                         <ArrowRight className="w-5 h-5" />
-                    </button>
-
-                    <button
-                        onClick={onLogin}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded border border-white/20 hover:bg-white/5 text-white font-bold transition-all"
-                    >
-                        Log in
                     </button>
                 </div>
             </div>

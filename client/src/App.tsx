@@ -5,7 +5,7 @@ import { Uploader } from './components/Uploader';
 import { Report } from './components/Report';
 import { WritingStudioPage } from './pages/WritingStudioPage';
 import { TeleprompterPage } from './pages/TeleprompterPage';
-import { transcribeAudio, analyzeTechnicality, saveRecording, listRecordings, deleteRecording, listProjects, saveProjects } from './api';
+import { transcribeAudio, analyzeTechnicality } from './api';
 import type { TranscriptionResult, TechnicalityResult, SavedRecording } from './api';
 import { VideoRecorderModal } from './components/VideoRecorder/VideoRecorderModal';
 import { PracticeResults } from './components/VideoRecorder/PracticeResults';
@@ -16,8 +16,6 @@ import { ProjectsView } from './components/ProjectsView';
 import type { Project } from './types/Project';
 import { CreateProjectModal } from './components/CreateProjectModal';
 import { EditProjectModal } from './components/EditProjectModal';
-import { AuthModal } from './components/AuthModal';
-import { useAuth } from './hooks/useAuth';
 
 const PROJECTS_STORAGE_PREFIX = 'voxplain_projects:';
 const LOCAL_PROJECTS_STORAGE_KEY = `${PROJECTS_STORAGE_PREFIX}local`;
@@ -25,9 +23,7 @@ const LOCAL_PROJECTS_STORAGE_KEY = `${PROJECTS_STORAGE_PREFIX}local`;
 const formatProjectDate = (date: Date) =>
   date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-const getUserProjectsKey = (userId: string) => `${PROJECTS_STORAGE_PREFIX}${userId}`;
-const getProjectsStorageKey = (userId?: string | null) =>
-  userId ? getUserProjectsKey(userId) : LOCAL_PROJECTS_STORAGE_KEY;
+const getProjectsStorageKey = () => LOCAL_PROJECTS_STORAGE_KEY;
 
 const reviveProjects = (rawProjects: Project[]): Project[] =>
   rawProjects.map(project => ({
@@ -35,8 +31,8 @@ const reviveProjects = (rawProjects: Project[]): Project[] =>
     lastModifiedDateObj: new Date(project.lastModifiedDateObj),
   }));
 
-const loadUserProjects = (userId: string): Project[] => {
-  const rawProjects = localStorage.getItem(getProjectsStorageKey(userId));
+const loadLocalProjects = (): Project[] => {
+  const rawProjects = localStorage.getItem(getProjectsStorageKey());
   if (!rawProjects) return [];
 
   try {
@@ -46,8 +42,6 @@ const loadUserProjects = (userId: string): Project[] => {
     return [];
   }
 };
-
-const loadLocalProjects = (): Project[] => loadUserProjects('');
 
 const createProjectId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -83,10 +77,6 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Authentication — Supabase
-  const { user, isLoggedIn, isLoading: authLoading, signIn, signUp, signOut } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState(false);
-
   // Projects State
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -106,33 +96,6 @@ function App() {
   const [script, setScript] = useState('');
   const [practiceView, setPracticeView] = useState<'studio' | 'teleprompter'>('studio');
 
-
-  const handleLogin = () => {
-    setShowAuthModal(true);
-  };
-
-  const handleAuthSuccess = () => {
-    setShowAuthModal(false);
-    setCurrentView('projects');
-  };
-
-  const handleLogout = async () => {
-    await signOut();
-    setProjects([]);
-    setSelectedProjectId(null);
-    setLastOpenedProjectId(null);
-    setProjectsLoadedForUserId(null);
-    setEditingProject(null);
-    setShowCreateModal(false);
-    setReport(null);
-    setTechnicalityResult(null);
-    setPracticeResult(null);
-    setSavedRecordings([]);
-    setSelectedRecordingId(null);
-    setScript('');
-    setCurrentView('home');
-  };
-
   const handleLogoClick = () => {
     setCurrentView('home');
   };
@@ -145,7 +108,7 @@ function App() {
       return;
     }
 
-    // If target is a feature view (transcribe, practice, analyze)
+    // If target is a feature view (transcribe, practice)
     // Check if we have a selected project
     if (!selectedProjectId) {
       // If no selection, check last opened
@@ -267,21 +230,6 @@ function App() {
       const transcription = await transcribeAudio(file);
       setReport(transcription);
       setPracticeResult({ speech: transcription });
-      if (!user) return;
-
-      try {
-        const savedRecording = await saveRecording({
-          file,
-          report: transcription,
-          projectId: selectedProjectId,
-          projectName: activeProject?.name || 'Untitled Session',
-          recordedAt: new Date().toISOString(),
-        });
-        setSavedRecordings(prev => [savedRecording, ...prev]);
-        setSelectedRecordingId(savedRecording.id);
-      } catch (saveErr) {
-        console.warn('Recording analyzed, but could not be saved to history:', saveErr);
-      }
     } catch (err) {
       console.error(err);
       setError("Failed to process recording.");
@@ -297,20 +245,14 @@ function App() {
     setSelectedRecordingId(null);
   };
 
-  const handleDeleteRecording = async () => {
+  const handleDeleteRecording = () => {
     if (!selectedRecordingId) {
       handleReset();
       return;
     }
 
-    try {
-      await deleteRecording(selectedRecordingId);
-      setSavedRecordings(prev => prev.filter(recording => recording.id !== selectedRecordingId));
-      handleReset();
-    } catch (err) {
-      console.error(err);
-      setError('Failed to delete recording.');
-    }
+    setSavedRecordings(prev => prev.filter(recording => recording.id !== selectedRecordingId));
+    handleReset();
   };
 
   const handleStartNewSession = () => {
@@ -323,7 +265,7 @@ function App() {
     setPracticeResult({ speech: recording.report });
     setTechnicalityResult(null);
     setSelectedRecordingId(recording.id);
-    setCurrentView('analyze');
+    setCurrentView('transcribe');
   };
 
   const handleDownloadSavedRecording = (recording: SavedRecording) => {
@@ -376,92 +318,20 @@ function App() {
   const isWorkspaceView = currentView === 'practice';
 
   useEffect(() => {
-    if (!user) {
-      const localProjects = loadLocalProjects();
-      setProjects(localProjects);
-      setSelectedProjectId(null);
-      setLastOpenedProjectId(localProjects[0]?.id ?? null);
-      setProjectsLoadedForUserId('local');
-      setSavedRecordings([]);
-      setSelectedRecordingId(null);
-      setScript('');
-      return;
-    }
-
-    let cancelled = false;
-
-    const loadProjects = async () => {
-      const userLocalProjects = loadUserProjects(user.id);
-      const localProjects = userLocalProjects.length > 0 ? userLocalProjects : loadLocalProjects();
-      let savedProjects = localProjects;
-
-      try {
-        const remoteProjects = await listProjects(user.id);
-        savedProjects = remoteProjects.length > 0 ? remoteProjects : localProjects;
-
-        if (remoteProjects.length === 0 && localProjects.length > 0) {
-          await saveProjects(user.id, localProjects);
-        }
-      } catch (err) {
-        console.warn('Failed to load projects from Supabase; using local cache', err);
-      }
-
-      if (cancelled) return;
-
-      setProjects(savedProjects);
-      setSavedRecordings([]);
-      setSelectedProjectId(null);
-      setLastOpenedProjectId(savedProjects[0]?.id ?? null);
-      setSelectedRecordingId(null);
-      setScript('');
-      setProjectsLoadedForUserId(user.id);
-    };
-
-    void loadProjects();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user]);
+    const localProjects = loadLocalProjects();
+    setProjects(localProjects);
+    setSelectedProjectId(null);
+    setLastOpenedProjectId(localProjects[0]?.id ?? null);
+    setProjectsLoadedForUserId('local');
+    setSavedRecordings([]);
+    setSelectedRecordingId(null);
+    setScript('');
+  }, []);
 
   useEffect(() => {
-    const loadedKey = user?.id ?? 'local';
-    if (projectsLoadedForUserId !== loadedKey) return;
-
-    localStorage.setItem(getProjectsStorageKey(user?.id), JSON.stringify(projects));
-
-    if (user) {
-      void saveProjects(user.id, projects).catch(err => {
-        console.warn('Failed to save projects to Supabase; local cache is still updated', err);
-      });
-    }
-  }, [projects, projectsLoadedForUserId, user]);
-
-  useEffect(() => {
-    if (!user || projectsLoadedForUserId !== user.id) return;
-
-    let cancelled = false;
-
-    const loadRecordings = async () => {
-      try {
-        const recordings = await listRecordings(selectedProjectId);
-        if (!cancelled) {
-          setSavedRecordings(recordings);
-        }
-      } catch (err) {
-        console.error(err);
-        if (!cancelled) {
-          setSavedRecordings([]);
-        }
-      }
-    };
-
-    void loadRecordings();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [projectsLoadedForUserId, selectedProjectId, user]);
+    if (projectsLoadedForUserId !== 'local') return;
+    localStorage.setItem(getProjectsStorageKey(), JSON.stringify(projects));
+  }, [projects, projectsLoadedForUserId]);
 
   useEffect(() => {
     if (!selectedProjectId || currentView !== 'practice') return;
@@ -477,56 +347,20 @@ function App() {
     }));
   }, [currentView, script, selectedProjectId]);
 
-  // Redirect logged-in users from the landing page to the projects view
-  useEffect(() => {
-    if (!authLoading && isLoggedIn && currentView === 'home') {
-      setCurrentView('projects');
-    }
-  }, [authLoading, isLoggedIn, currentView]);
-
-  // --- AUTH LOADING STATE ---
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#111111]">
-        <div className="w-10 h-10 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   // --- RENDER LANDING PAGE (HOME) ---
-  if (currentView === 'home' && !isLoggedIn) {
+  if (currentView === 'home') {
     return (
       <div className="min-h-screen bg-[#111111] font-sans text-slate-50 selection:bg-orange-500 selection:text-white pt-16">
         <TopNav
           currentMode={currentView === 'home' ? '' : currentView}
           onModeChange={() => { }} // Disabled on home
-          isLoggedIn={isLoggedIn}
-          onLoginClick={handleLogin}
-          onLogoutClick={handleLogout}
-          userEmail={user?.email}
           onLogoClick={handleLogoClick}
         />
         <LandingHero
           onGetStarted={() => {
             setCurrentView('projects');
           }}
-          onLogin={handleLogin}
         />
-
-        {/* Auth Modal */}
-        {showAuthModal && (
-          <AuthModal
-            onClose={() => setShowAuthModal(false)}
-            onSignIn={async (email, password) => {
-              await signIn(email, password);
-              handleAuthSuccess();
-            }}
-            onSignUp={async (email, password) => {
-              await signUp(email, password);
-              // Don't auto-redirect on signup — user needs to confirm email
-            }}
-          />
-        )}
       </div>
     );
   }
@@ -542,10 +376,6 @@ function App() {
       <TopNav
         currentMode={currentView}
         onModeChange={handleNavigation}
-        isLoggedIn={isLoggedIn}
-        onLoginClick={handleLogin}
-        onLogoutClick={handleLogout}
-        userEmail={user?.email}
         onLogoClick={handleLogoClick}
       />
 
@@ -697,7 +527,7 @@ function App() {
                       <div>
                         <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Previous Recordings</h3>
                         <p className="text-xs text-slate-500">
-                          {isLoggedIn ? 'Recorded sessions are saved automatically.' : 'Log in to save recording history.'}
+                          Recording history is disabled while login is turned off.
                         </p>
                       </div>
                       <span className="text-xs font-semibold text-slate-400">{visibleRecordings.length} saved</span>
@@ -752,6 +582,7 @@ function App() {
                       audienceLevel={activeProject?.audienceLevel}
                       domain={activeProject?.domain}
                       projectId={activeProject?.id}
+                      projectName={activeProject?.name}
                     />
                   ) : (
                     <TeleprompterPage
@@ -999,21 +830,6 @@ function App() {
             onSave={handleUpdateProject}
           />
         )}
-
-        {/* Auth Modal (available everywhere) */}
-        {showAuthModal && (
-          <AuthModal
-            onClose={() => setShowAuthModal(false)}
-            onSignIn={async (email, password) => {
-              await signIn(email, password);
-              handleAuthSuccess();
-            }}
-            onSignUp={async (email, password) => {
-              await signUp(email, password);
-            }}
-          />
-        )}
-
       </main>
     </div>
   );

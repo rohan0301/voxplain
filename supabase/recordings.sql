@@ -40,8 +40,29 @@ create table if not exists public.projects (
 create index if not exists projects_user_updated_at_idx
     on public.projects (user_id, updated_at desc);
 
+create table if not exists public.speeches (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null references auth.users(id) on delete cascade,
+    project_id text,
+    project_name text,
+    title text,
+    content text not null,
+    word_count integer not null default 0,
+    audience_level integer,
+    domain text,
+    created_at timestamptz not null default timezone('utc', now()),
+    updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists speeches_user_created_at_idx
+    on public.speeches (user_id, created_at desc);
+
+create index if not exists speeches_user_project_created_at_idx
+    on public.speeches (user_id, project_id, created_at desc);
+
 alter table public.recordings enable row level security;
 alter table public.projects enable row level security;
+alter table public.speeches enable row level security;
 
 drop policy if exists "Users can view their own projects" on public.projects;
 create policy "Users can view their own projects"
@@ -89,6 +110,35 @@ create policy "Users can insert their own recordings"
 drop policy if exists "Users can delete their own recordings" on public.recordings;
 create policy "Users can delete their own recordings"
     on public.recordings
+    for delete
+    to authenticated
+    using (auth.uid() = user_id);
+
+drop policy if exists "Users can view their own speeches" on public.speeches;
+create policy "Users can view their own speeches"
+    on public.speeches
+    for select
+    to authenticated
+    using (auth.uid() = user_id);
+
+drop policy if exists "Users can insert their own speeches" on public.speeches;
+create policy "Users can insert their own speeches"
+    on public.speeches
+    for insert
+    to authenticated
+    with check (auth.uid() = user_id);
+
+drop policy if exists "Users can update their own speeches" on public.speeches;
+create policy "Users can update their own speeches"
+    on public.speeches
+    for update
+    to authenticated
+    using (auth.uid() = user_id)
+    with check (auth.uid() = user_id);
+
+drop policy if exists "Users can delete their own speeches" on public.speeches;
+create policy "Users can delete their own speeches"
+    on public.speeches
     for delete
     to authenticated
     using (auth.uid() = user_id);

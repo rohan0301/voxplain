@@ -26,7 +26,7 @@ export function useTextAnalysis() {
             if (wordCount === 0) {
                 setAnalysis(null);
                 setIsAnalyzing(false);
-                return;
+                return null;
             }
 
             // Basic local stats
@@ -41,17 +41,21 @@ export function useTextAnalysis() {
                 domain
             });
 
-            setAnalysis({
+            const nextAnalysis = {
                 ...technicality,
                 wordCount,
                 sentenceCount,
                 avgWordsPerSentence,
                 metrics: (technicality as any).metrics
-            });
+            };
+
+            setAnalysis(nextAnalysis);
+            return nextAnalysis;
 
         } catch (err) {
             console.error("Analysis failed:", err);
             setError("Failed to analyze text. Please try again.");
+            return null;
         } finally {
             setIsAnalyzing(false);
         }
