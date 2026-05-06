@@ -17,6 +17,8 @@ export const AuthModal = ({ onClose, onSignIn, onSignUp }: AuthModalProps) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (isSubmitting || (mode === 'signup' && successMsg)) return;
+
         setError(null);
         setSuccessMsg(null);
         setIsSubmitting(true);
@@ -29,7 +31,12 @@ export const AuthModal = ({ onClose, onSignIn, onSignUp }: AuthModalProps) => {
                 setSuccessMsg('Check your email to confirm your account.');
             }
         } catch (err: any) {
-            setError(err.message || 'Something went wrong');
+            const message = err.message || 'Something went wrong';
+            setError(
+                message.toLowerCase().includes('rate limit')
+                    ? 'Email rate limit exceeded. Please wait before requesting another confirmation email.'
+                    : message
+            );
         } finally {
             setIsSubmitting(false);
         }
@@ -99,7 +106,7 @@ export const AuthModal = ({ onClose, onSignIn, onSignUp }: AuthModalProps) => {
 
                     <button
                         type="submit"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || (mode === 'signup' && !!successMsg)}
                         className="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {isSubmitting ? (

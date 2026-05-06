@@ -20,11 +20,14 @@ import { AuthModal } from './components/AuthModal';
 import { useAuth } from './hooks/useAuth';
 
 const PROJECTS_STORAGE_PREFIX = 'voxplain_projects:';
+const LOCAL_PROJECTS_STORAGE_KEY = `${PROJECTS_STORAGE_PREFIX}local`;
 
 const formatProjectDate = (date: Date) =>
   date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 const getUserProjectsKey = (userId: string) => `${PROJECTS_STORAGE_PREFIX}${userId}`;
+const getProjectsStorageKey = (userId?: string | null) =>
+  userId ? getUserProjectsKey(userId) : LOCAL_PROJECTS_STORAGE_KEY;
 
 const reviveProjects = (rawProjects: Project[]): Project[] =>
   rawProjects.map(project => ({
@@ -33,7 +36,7 @@ const reviveProjects = (rawProjects: Project[]): Project[] =>
   }));
 
 const loadUserProjects = (userId: string): Project[] => {
-  const rawProjects = localStorage.getItem(getUserProjectsKey(userId));
+  const rawProjects = localStorage.getItem(getProjectsStorageKey(userId));
   if (!rawProjects) return [];
 
   try {
@@ -43,6 +46,8 @@ const loadUserProjects = (userId: string): Project[] => {
     return [];
   }
 };
+
+const loadLocalProjects = (): Project[] => loadUserProjects('');
 
 const createProjectId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -181,11 +186,6 @@ function App() {
   };
 
   const handleCreateProject = (projectData: Partial<Project>) => {
-    if (!user) {
-      setError('Please log in before creating a project.');
-      return;
-    }
-
     const now = new Date();
     const newProject: Project = {
       id: createProjectId(),
@@ -267,6 +267,8 @@ function App() {
       const transcription = await transcribeAudio(file);
       setReport(transcription);
       setPracticeResult({ speech: transcription });
+      if (!user) return;
+
       const savedRecording = await saveRecording({
         file,
         report: transcription,
@@ -371,10 +373,11 @@ function App() {
 
   useEffect(() => {
     if (!user) {
-      setProjects([]);
+      const localProjects = loadLocalProjects();
+      setProjects(localProjects);
       setSelectedProjectId(null);
-      setLastOpenedProjectId(null);
-      setProjectsLoadedForUserId(null);
+      setLastOpenedProjectId(localProjects[0]?.id ?? null);
+      setProjectsLoadedForUserId('local');
       setSavedRecordings([]);
       setSelectedRecordingId(null);
       setScript('');
@@ -384,7 +387,8 @@ function App() {
     let cancelled = false;
 
     const loadProjects = async () => {
-      const localProjects = loadUserProjects(user.id);
+      const userLocalProjects = loadUserProjects(user.id);
+      const localProjects = userLocalProjects.length > 0 ? userLocalProjects : loadLocalProjects();
       let savedProjects = localProjects;
 
       try {
@@ -417,12 +421,16 @@ function App() {
   }, [user]);
 
   useEffect(() => {
-    if (!user || projectsLoadedForUserId !== user.id) return;
+    const loadedKey = user?.id ?? 'local';
+    if (projectsLoadedForUserId !== loadedKey) return;
 
-    localStorage.setItem(getUserProjectsKey(user.id), JSON.stringify(projects));
-    void saveProjects(user.id, projects).catch(err => {
-      console.warn('Failed to save projects to Supabase; local cache is still updated', err);
-    });
+    localStorage.setItem(getProjectsStorageKey(user?.id), JSON.stringify(projects));
+
+    if (user) {
+      void saveProjects(user.id, projects).catch(err => {
+        console.warn('Failed to save projects to Supabase; local cache is still updated', err);
+      });
+    }
   }, [projects, projectsLoadedForUserId, user]);
 
   useEffect(() => {
@@ -496,7 +504,7 @@ function App() {
         />
         <LandingHero
           onGetStarted={() => {
-            handleLogin();
+            setCurrentView('projects');
           }}
           onLogin={handleLogin}
         />
@@ -684,7 +692,9 @@ function App() {
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Previous Recordings</h3>
-                        <p className="text-xs text-slate-500">Recorded sessions are saved automatically.</p>
+                        <p className="text-xs text-slate-500">
+                          {isLoggedIn ? 'Recorded sessions are saved automatically.' : 'Log in to save recording history.'}
+                        </p>
                       </div>
                       <span className="text-xs font-semibold text-slate-400">{visibleRecordings.length} saved</span>
                     </div>

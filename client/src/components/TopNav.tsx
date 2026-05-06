@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Mic, BarChart2, Type, Mic2, Lock, User, LogIn, UserPlus, FolderOpen, LogOut } from 'lucide-react';
+import { Mic, BarChart2, Type, Mic2, User, LogIn, UserPlus, FolderOpen, LogOut } from 'lucide-react';
 import { useState } from 'react';
 
 interface TopNavProps {
@@ -59,34 +59,22 @@ export const TopNav = ({ currentMode, onModeChange, isLoggedIn, onLoginClick, on
                     isHome ? "bg-white/5 border-white/10" : "bg-slate-100/80 border-slate-200/50"
                 )}>
                     {modes.map((mode) => {
-                        const isLocked = !isLoggedIn;
-                        const isActive = currentMode === mode.id && isLoggedIn;
+                        const isActive = currentMode === mode.id;
 
                         return (
                             <div key={mode.id} className="relative group">
                                 <button
-                                    onClick={() => isLoggedIn && onModeChange(mode.id)}
-                                    disabled={isLocked}
+                                    onClick={() => onModeChange(mode.id)}
                                     className={clsx(
                                         "px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2",
                                         isActive
                                             ? (isHome ? "bg-white/20 text-white shadow-sm ring-1 ring-white/10" : "bg-white text-brand-700 shadow-sm ring-1 ring-slate-100")
                                             : (isHome ? "text-slate-400" : "text-slate-500"),
-                                        isLocked
-                                            ? "opacity-60 cursor-not-allowed hover:bg-transparent"
-                                            : (isHome ? "hover:text-white hover:bg-white/10" : "hover:text-slate-900 hover:bg-slate-200/50")
+                                        isHome ? "hover:text-white hover:bg-white/10" : "hover:text-slate-900 hover:bg-slate-200/50"
                                     )}
                                 >
-                                    {isLocked && <Lock className="w-3 h-3" />}
                                     <span>{mode.label}</span>
                                 </button>
-
-                                {/* Tooltip for locked state */}
-                                {isLocked && (
-                                    <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                                        Log in to access
-                                    </div>
-                                )}
                             </div>
                         );
                     })}
