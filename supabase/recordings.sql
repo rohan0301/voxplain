@@ -20,7 +20,57 @@ create table if not exists public.recordings (
 create index if not exists recordings_user_recorded_at_idx
     on public.recordings (user_id, recorded_at desc);
 
+create table if not exists public.projects (
+    id text not null,
+    user_id uuid not null references auth.users(id) on delete cascade,
+    name text not null,
+    last_modified timestamptz not null default timezone('utc', now()),
+    estimated_time_sec integer not null default 0,
+    required_time_sec integer,
+    audience text,
+    presentation_type text,
+    speech_text text,
+    audience_level integer,
+    domain text,
+    created_at timestamptz not null default timezone('utc', now()),
+    updated_at timestamptz not null default timezone('utc', now()),
+    primary key (user_id, id)
+);
+
+create index if not exists projects_user_updated_at_idx
+    on public.projects (user_id, updated_at desc);
+
 alter table public.recordings enable row level security;
+alter table public.projects enable row level security;
+
+drop policy if exists "Users can view their own projects" on public.projects;
+create policy "Users can view their own projects"
+    on public.projects
+    for select
+    to authenticated
+    using (auth.uid() = user_id);
+
+drop policy if exists "Users can insert their own projects" on public.projects;
+create policy "Users can insert their own projects"
+    on public.projects
+    for insert
+    to authenticated
+    with check (auth.uid() = user_id);
+
+drop policy if exists "Users can update their own projects" on public.projects;
+create policy "Users can update their own projects"
+    on public.projects
+    for update
+    to authenticated
+    using (auth.uid() = user_id)
+    with check (auth.uid() = user_id);
+
+drop policy if exists "Users can delete their own projects" on public.projects;
+create policy "Users can delete their own projects"
+    on public.projects
+    for delete
+    to authenticated
+    using (auth.uid() = user_id);
 
 drop policy if exists "Users can view their own recordings" on public.recordings;
 create policy "Users can view their own recordings"

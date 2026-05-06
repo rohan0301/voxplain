@@ -1,4 +1,5 @@
 import type { AudienceLevel } from './types/Project';
+import type { Project } from './types/Project';
 import { supabase } from './lib/supabase';
 
 export interface AnalysisMetrics {
@@ -51,6 +52,93 @@ export interface SavedRecording {
     audioType: string;
     fileName: string;
     report: TranscriptionResult;
+}
+
+interface ProjectRow {
+    id: string;
+    user_id: string;
+    name: string;
+    last_modified: string;
+    estimated_time_sec: number;
+    required_time_sec: number | null;
+    audience: string | null;
+    presentation_type: string | null;
+    speech_text: string | null;
+    audience_level: AudienceLevel | null;
+    domain: Project['domain'] | null;
+}
+
+const projectSelectColumns = [
+    'id',
+    'user_id',
+    'name',
+    'last_modified',
+    'estimated_time_sec',
+    'required_time_sec',
+    'audience',
+    'presentation_type',
+    'speech_text',
+    'audience_level',
+    'domain',
+].join(',');
+
+const formatProjectDate = (date: Date) =>
+    date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+const projectFromRow = (row: ProjectRow): Project => {
+    const lastModifiedDateObj = new Date(row.last_modified);
+
+    return {
+        id: row.id,
+        name: row.name,
+        lastModified: formatProjectDate(lastModifiedDateObj),
+        lastModifiedDateObj,
+        estimatedTimeSec: row.estimated_time_sec,
+        requiredTimeSec: row.required_time_sec,
+        audience: row.audience ?? undefined,
+        presentationType: row.presentation_type ?? undefined,
+        speechText: row.speech_text ?? undefined,
+        audienceLevel: row.audience_level ?? undefined,
+        domain: row.domain ?? undefined,
+    };
+};
+
+const rowFromProject = (userId: string, project: Project) => ({
+    id: project.id,
+    user_id: userId,
+    name: project.name,
+    last_modified: project.lastModifiedDateObj.toISOString(),
+    estimated_time_sec: project.estimatedTimeSec,
+    required_time_sec: project.requiredTimeSec ?? null,
+    audience: project.audience ?? null,
+    presentation_type: project.presentationType ?? null,
+    speech_text: project.speechText ?? null,
+    audience_level: project.audienceLevel ?? null,
+    domain: project.domain ?? null,
+    updated_at: new Date().toISOString(),
+});
+
+export async function listProjects(userId: string): Promise<Project[]> {
+    const { data, error } = await supabase
+        .from('projects')
+        .select(projectSelectColumns)
+        .eq('user_id', userId)
+        .order('last_modified', { ascending: false });
+
+    if (error) throw error;
+    return ((data ?? []) as unknown as ProjectRow[]).map(projectFromRow);
+}
+
+export async function saveProjects(userId: string, projects: Project[]): Promise<void> {
+    if (projects.length === 0) return;
+
+    const { error } = await supabase
+        .from('projects')
+        .upsert(projects.map(project => rowFromProject(userId, project)), {
+            onConflict: 'user_id,id',
+        });
+
+    if (error) throw error;
 }
 
 export interface TechnicalityHotspot {

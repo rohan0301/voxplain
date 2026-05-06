@@ -5,7 +5,7 @@ import { Uploader } from './components/Uploader';
 import { Report } from './components/Report';
 import { WritingStudioPage } from './pages/WritingStudioPage';
 import { TeleprompterPage } from './pages/TeleprompterPage';
-import { transcribeAudio, analyzeTechnicality, saveRecording, listRecordings, deleteRecording } from './api';
+import { transcribeAudio, analyzeTechnicality, saveRecording, listRecordings, deleteRecording, listProjects, saveProjects } from './api';
 import type { TranscriptionResult, TechnicalityResult, SavedRecording } from './api';
 import { VideoRecorderModal } from './components/VideoRecorder/VideoRecorderModal';
 import { PracticeResults } from './components/VideoRecorder/PracticeResults';
@@ -381,21 +381,48 @@ function App() {
       return;
     }
 
-    const savedProjects = loadUserProjects(user.id);
+    let cancelled = false;
 
-    setProjects(savedProjects);
-    setSavedRecordings([]);
-    setSelectedProjectId(null);
-    setLastOpenedProjectId(savedProjects[0]?.id ?? null);
-    setSelectedRecordingId(null);
-    setScript('');
-    setProjectsLoadedForUserId(user.id);
+    const loadProjects = async () => {
+      const localProjects = loadUserProjects(user.id);
+      let savedProjects = localProjects;
+
+      try {
+        const remoteProjects = await listProjects(user.id);
+        savedProjects = remoteProjects.length > 0 ? remoteProjects : localProjects;
+
+        if (remoteProjects.length === 0 && localProjects.length > 0) {
+          await saveProjects(user.id, localProjects);
+        }
+      } catch (err) {
+        console.warn('Failed to load projects from Supabase; using local cache', err);
+      }
+
+      if (cancelled) return;
+
+      setProjects(savedProjects);
+      setSavedRecordings([]);
+      setSelectedProjectId(null);
+      setLastOpenedProjectId(savedProjects[0]?.id ?? null);
+      setSelectedRecordingId(null);
+      setScript('');
+      setProjectsLoadedForUserId(user.id);
+    };
+
+    void loadProjects();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   useEffect(() => {
     if (!user || projectsLoadedForUserId !== user.id) return;
 
     localStorage.setItem(getUserProjectsKey(user.id), JSON.stringify(projects));
+    void saveProjects(user.id, projects).catch(err => {
+      console.warn('Failed to save projects to Supabase; local cache is still updated', err);
+    });
   }, [projects, projectsLoadedForUserId, user]);
 
   useEffect(() => {
