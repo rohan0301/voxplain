@@ -124,15 +124,20 @@
   }
 
   .auth-input {
-    @apply bg-white text-slate-900 placeholder:text-slate-400 caret-slate-900;
+    @apply bg-white placeholder:text-slate-400;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    caret-color: #0f172a;
+    color-scheme: light;
   }
 
   .auth-input:-webkit-autofill,
   .auth-input:-webkit-autofill:hover,
   .auth-input:-webkit-autofill:focus {
-    -webkit-text-fill-color: #0f172a;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
     caret-color: #0f172a;
-    box-shadow: 0 0 0 1000px #fff inset;
+    box-shadow: 0 0 0 1000px #fff inset !important;
     transition: background-color 9999s ease-in-out 0s;
   }
 

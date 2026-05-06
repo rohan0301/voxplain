@@ -77,8 +77,16 @@ export interface TechnicalityResult {
     };
 }
 
-// Use env var in production, fallback to localhost for dev
-const API_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:3000/api';
+// Use env var in production, fallback to localhost for dev.
+const API_URL = ((import.meta.env.VITE_API_URL as string | undefined) || '').replace(/\/$/, '')
+    || (import.meta.env.DEV ? 'http://localhost:3000/api' : '');
+
+function apiUrl(path: string): string {
+    if (!API_URL) {
+        throw new Error('Missing VITE_API_URL. Set it in Vercel to your deployed backend URL, ending in /api.');
+    }
+    return `${API_URL}${path}`;
+}
 
 /**
  * Get authorization headers with the current Supabase session token.
@@ -97,7 +105,7 @@ export async function transcribeAudio(file: File): Promise<TranscriptionResult> 
 
     const headers = await authHeaders();
 
-    const response = await fetch(`${API_URL}/transcribe`, {
+    const response = await fetch(apiUrl('/transcribe'), {
         method: 'POST',
         headers,
         body: formData,
@@ -128,7 +136,7 @@ export async function saveRecording(payload: SaveRecordingPayload): Promise<Save
 
     const headers = await authHeaders();
 
-    const response = await fetch(`${API_URL}/recordings`, {
+    const response = await fetch(apiUrl('/recordings'), {
         method: 'POST',
         headers,
         body: formData,
@@ -146,7 +154,7 @@ export async function listRecordings(projectId?: string | null): Promise<SavedRe
     const params = new URLSearchParams();
     if (projectId) params.set('projectId', projectId);
 
-    const response = await fetch(`${API_URL}/recordings${params.size ? `?${params.toString()}` : ''}`, {
+    const response = await fetch(apiUrl(`/recordings${params.size ? `?${params.toString()}` : ''}`), {
         method: 'GET',
         headers,
     });
@@ -161,7 +169,7 @@ export async function listRecordings(projectId?: string | null): Promise<SavedRe
 export async function deleteRecording(recordingId: string): Promise<void> {
     const headers = await authHeaders();
 
-    const response = await fetch(`${API_URL}/recordings/${recordingId}`, {
+    const response = await fetch(apiUrl(`/recordings/${recordingId}`), {
         method: 'DELETE',
         headers,
     });
@@ -182,7 +190,7 @@ export interface AnalyzePayload {
 export async function analyzeTechnicality(payload: AnalyzePayload): Promise<{ technicality: TechnicalityResult }> {
     const headers = await authHeaders();
 
-    const response = await fetch(`${API_URL}/analyze-technicality`, {
+    const response = await fetch(apiUrl('/analyze-technicality'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...headers },
         body: JSON.stringify(payload)
@@ -207,7 +215,7 @@ export async function saveLabel(payload: LabelPayload): Promise<void> {
     console.log('[API] Saving label payload:', payload);
     const headers = await authHeaders();
 
-    const response = await fetch(`${API_URL}/labels`, {
+    const response = await fetch(apiUrl('/labels'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...headers },
         body: JSON.stringify(payload)
@@ -264,7 +272,7 @@ export interface MetricsResponse {
 export async function getMetrics(payload: MetricsRequest): Promise<MetricsResponse> {
     const headers = await authHeaders();
 
-    const response = await fetch(`${API_URL}/analyze/metrics`, {
+    const response = await fetch(apiUrl('/analyze/metrics'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...headers },
         body: JSON.stringify(payload)
