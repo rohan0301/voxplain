@@ -53,10 +53,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+def normalize_origin(origin: str) -> str:
+    return origin.strip().rstrip("/")
+
+
 configured_origins = [
-    origin.strip()
+    normalize_origin(origin)
     for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
-    if origin.strip()
+    if normalize_origin(origin)
 ]
 local_dev_origins = [
     "http://localhost:5173",

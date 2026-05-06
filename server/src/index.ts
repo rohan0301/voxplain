@@ -1,5 +1,5 @@
 import express, { type Request, type Response } from 'express';
-import cors from 'cors';
+import cors, { type CorsOptions } from 'cors';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -21,6 +21,14 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware — CORS
+const normalizeOrigin = (origin: string): string => {
+    try {
+        return new URL(origin).origin;
+    } catch {
+        return origin.replace(/\/$/, '');
+    }
+};
+
 const localDevOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
@@ -28,21 +36,37 @@ const localDevOrigins = [
     'http://127.0.0.1:4173',
 ];
 const configuredOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim()).filter(Boolean)
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => normalizeOrigin(origin.trim())).filter(Boolean)
     : [];
-const allowedOrigins = [...new Set([...configuredOrigins, ...localDevOrigins])];
+const allowedOrigins = [...new Set([...configuredOrigins, ...localDevOrigins.map(normalizeOrigin)])];
+const allowedOriginPatterns = (process.env.ALLOWED_ORIGIN_PATTERNS || '')
+    .split(',')
+    .map(pattern => pattern.trim())
+    .filter(Boolean)
+    .map(pattern => new RegExp(pattern));
 
-app.use(cors({
+const corsOptions = {
     origin: (origin, callback) => {
-        // Allow requests with no origin (curl, mobile, etc.) in dev
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error(`Origin ${origin} not allowed by CORS`));
+        // Allow requests with no origin (curl, health checks, mobile, etc.)
+        if (!origin) return callback(null, true);
+
+        const normalizedOrigin = normalizeOrigin(origin);
+        const isAllowed =
+            allowedOrigins.includes(normalizedOrigin) ||
+            allowedOriginPatterns.some(pattern => pattern.test(normalizedOrigin));
+
+        if (!isAllowed) {
+            console.warn(`Origin ${normalizedOrigin} not allowed by CORS. Allowed origins: ${allowedOrigins.join(', ')}`);
         }
+
+        callback(null, isAllowed);
     },
     credentials: true,
-}));
+    optionsSuccessStatus: 204,
+} satisfies CorsOptions;
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 app.use(express.json());
 
 // File Upload Setup

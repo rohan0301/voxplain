@@ -16,19 +16,22 @@ const app = express();
 const port = process.env.PORT || 3000;
 // Middleware — CORS
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:5173', 'http://localhost:4173'];
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim().replace(/\/$/, ''))
+    : ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:4173', 'http://127.0.0.1:4173'];
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (curl, mobile, etc.) in dev
-        if (!origin || allowedOrigins.includes(origin)) {
+        const normalizedOrigin = origin?.replace(/\/$/, '');
+        if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
             callback(null, true);
         }
         else {
-            callback(new Error(`Origin ${origin} not allowed by CORS`));
+            console.warn(`Origin ${origin} not allowed by CORS. Allowed origins: ${allowedOrigins.join(', ')}`);
+            callback(null, false);
         }
     },
     credentials: true,
+    optionsSuccessStatus: 204,
 }));
 app.use(express.json());
 // File Upload Setup

@@ -20,6 +20,8 @@ services:
         value: recordings
       - key: ALLOWED_ORIGINS
         sync: false
+      - key: ALLOWED_ORIGIN_PATTERNS
+        sync: false
       - key: ASSEMBLYAI_API_KEY
         sync: false
 
