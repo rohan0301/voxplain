@@ -36,19 +36,25 @@ export const TeleprompterDisplay: React.FC<TeleprompterDisplayProps> = ({
     const contentRef = useRef<HTMLDivElement>(null);
     const requestRef = useRef<number | undefined>(undefined);
     const lastTimeRef = useRef<number | undefined>(undefined);
+    const scrollRemainderRef = useRef(0);
 
     // Scroll Logic
     const animate = useCallback((time: number) => {
         if (!isPlaying || !containerRef.current) return;
 
         if (lastTimeRef.current !== undefined) {
-            // const deltaTime = time - lastTimeRef.current;
-            // Speed factor: 1 = slow crop, 100 = fast
-            // Pixels per second approximation
-            // Let's say max speed 100 = 200px/sec?
+            const deltaSeconds = Math.min((time - lastTimeRef.current) / 1000, 0.1);
+            const clampedSpeed = Math.max(1, Math.min(100, speed));
+            const pixelsPerSecond = 1 + clampedSpeed * 0.65;
+            const scrollAmount = pixelsPerSecond * deltaSeconds + scrollRemainderRef.current;
+            const wholePixels = Math.floor(scrollAmount);
 
-            const pixelsPerFrame = (speed / 10) * 0.5; // Tuning
-            containerRef.current.scrollTop += pixelsPerFrame;
+            if (wholePixels > 0) {
+                containerRef.current.scrollTop += wholePixels;
+                scrollRemainderRef.current = scrollAmount - wholePixels;
+            } else {
+                scrollRemainderRef.current = scrollAmount;
+            }
         }
 
         lastTimeRef.current = time;
@@ -61,6 +67,7 @@ export const TeleprompterDisplay: React.FC<TeleprompterDisplayProps> = ({
         } else {
             if (requestRef.current) cancelAnimationFrame(requestRef.current);
             lastTimeRef.current = undefined; // Reset delta tracking on pause
+            scrollRemainderRef.current = 0;
         }
         return () => {
             if (requestRef.current) cancelAnimationFrame(requestRef.current);
