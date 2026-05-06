@@ -269,15 +269,19 @@ function App() {
       setPracticeResult({ speech: transcription });
       if (!user) return;
 
-      const savedRecording = await saveRecording({
-        file,
-        report: transcription,
-        projectId: selectedProjectId,
-        projectName: activeProject?.name || 'Untitled Session',
-        recordedAt: new Date().toISOString(),
-      });
-      setSavedRecordings(prev => [savedRecording, ...prev]);
-      setSelectedRecordingId(savedRecording.id);
+      try {
+        const savedRecording = await saveRecording({
+          file,
+          report: transcription,
+          projectId: selectedProjectId,
+          projectName: activeProject?.name || 'Untitled Session',
+          recordedAt: new Date().toISOString(),
+        });
+        setSavedRecordings(prev => [savedRecording, ...prev]);
+        setSelectedRecordingId(savedRecording.id);
+      } catch (saveErr) {
+        console.warn('Recording analyzed, but could not be saved to history:', saveErr);
+      }
     } catch (err) {
       console.error(err);
       setError("Failed to process recording.");
