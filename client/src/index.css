@@ -123,6 +123,19 @@
     @apply bg-white rounded-xl shadow-sm border border-slate-100 p-6;
   }
 
+  .auth-input {
+    @apply bg-white text-slate-900 placeholder:text-slate-400 caret-slate-900;
+  }
+
+  .auth-input:-webkit-autofill,
+  .auth-input:-webkit-autofill:hover,
+  .auth-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #0f172a;
+    caret-color: #0f172a;
+    box-shadow: 0 0 0 1000px #fff inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+
   .gradient-button {
     @apply relative appearance-none cursor-pointer;
     background: radial-gradient(var(--spread-x) var(--spread-y) at var(--pos-x) var(--pos-y),

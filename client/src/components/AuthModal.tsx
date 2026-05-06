@@ -74,7 +74,7 @@ export const AuthModal = ({ onClose, onSignIn, onSignUp }: AuthModalProps) => {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500"
+                                className="auth-input w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500"
                                 placeholder="you@example.com"
                                 required
                             />
@@ -89,7 +89,7 @@ export const AuthModal = ({ onClose, onSignIn, onSignUp }: AuthModalProps) => {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500"
+                                className="auth-input w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500"
                                 placeholder={mode === 'signup' ? 'Min 6 characters' : '••••••••'}
                                 required
                                 minLength={6}
