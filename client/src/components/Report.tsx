@@ -144,7 +144,11 @@ export const Report: React.FC<ReportProps> = ({ data, audioSrc, recordedAt, onDo
                 <div className="space-y-2">
                     <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Transcript Highlights</h4>
                     <div className="bg-slate-50 rounded-2xl border border-slate-200 p-6 max-h-[300px] overflow-y-auto text-base leading-relaxed text-slate-700 font-medium">
-                        {highlightFillers(text, metrics.fillerWordsFound)}
+                        {text.trim() ? (
+                            highlightFillers(text, metrics.fillerWordsFound)
+                        ) : (
+                            <span className="text-slate-400">No speech detected in this recording.</span>
+                        )}
                     </div>
                 </div>
 

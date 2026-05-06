@@ -200,7 +200,8 @@ export async function transcribeAudio(file: File): Promise<TranscriptionResult> 
     });
 
     if (!response.ok) {
-        throw new Error('Transcription failed');
+        const errText = await response.text().catch(() => '');
+        throw new Error(`Transcription failed (${response.status}): ${errText || response.statusText}`);
     }
 
     return response.json();

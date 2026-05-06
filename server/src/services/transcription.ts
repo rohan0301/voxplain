@@ -21,6 +21,46 @@ const MOCK_WORDS = [
     { text: "skills.", start: 3900, end: 4400, confidence: 0.99 }
 ];
 
+function createNoSpeechResult(durationSeconds: number): TranscriptionResult {
+    return {
+        text: '',
+        metrics: {
+            wordCount: 0,
+            durationSeconds,
+            wpm: 0,
+            fillerCount: 0,
+            fillerWordsFound: {},
+            pausesEstimate: 0,
+            hedges: [],
+            apologies: [],
+            iTax: 0,
+            pacing: {
+                goodPauses: 0,
+                badPauses: 0,
+                totalPauseTime: 0,
+                wpmSpikes: 0,
+            },
+            volumeDecay: {
+                sentenceEndDropoffs: 0,
+                averageDropoffDb: 0,
+            },
+        },
+        tips: [
+            {
+                id: 'no-speech-detected',
+                type: 'improvement',
+                message: 'No speech was detected in this recording. Try another take when you are ready to practice aloud.',
+            },
+            {
+                id: 'no-fillers',
+                type: 'positive',
+                message: 'Zero filler words detected.',
+            },
+        ],
+        words: [],
+    };
+}
+
 export async function processAudio(filePath: string): Promise<TranscriptionResult> {
     let text = '';
     let duration = 0;
@@ -28,6 +68,11 @@ export async function processAudio(filePath: string): Promise<TranscriptionResul
 
     // 1. Get Duration
     duration = await getAudioDuration(filePath);
+    const fileSize = fs.existsSync(filePath) ? fs.statSync(filePath).size : 0;
+
+    if (fileSize === 0) {
+        return createNoSpeechResult(duration);
+    }
 
     // 2. Transcribe
     if (process.env.ASSEMBLYAI_API_KEY) {
@@ -49,16 +94,18 @@ export async function processAudio(filePath: string): Promise<TranscriptionResul
             }
 
         } catch (e) {
-            console.error("AssemblyAI Transcription failed, falling back to mock:", e);
-            text = MOCK_TRANSCRIPT;
-            words = MOCK_WORDS;
-            if (duration === 0) duration = 15;
+            console.error("AssemblyAI transcription failed:", e);
+            return createNoSpeechResult(duration);
         }
     } else {
         await new Promise(r => setTimeout(r, 1500));
         text = MOCK_TRANSCRIPT;
         words = MOCK_WORDS;
         if (duration === 0) duration = 15;
+    }
+
+    if (!text.trim() || words.length === 0) {
+        return createNoSpeechResult(duration);
     }
 
     // 3. Audio-Specific Analysis (Volume Decay)

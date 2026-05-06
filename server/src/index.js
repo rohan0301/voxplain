@@ -111,7 +111,7 @@ app.post("/api/labels", requireAuth, (req, res) => {
         return res.status(500).json({ ok: false, error: err?.message ?? "Unknown error" });
     }
 });
-app.post('/api/transcribe', requireAuth, upload.single('audio'), transcribeHandler);
+app.post('/api/transcribe', upload.single('audio'), transcribeHandler);
 app.post('/api/analyze-technicality', requireAuth, (req, res) => {
     try {
         const { transcriptText, words, audienceLevel, requiredTimeSec } = req.body;
