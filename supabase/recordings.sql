@@ -60,9 +60,31 @@ create index if not exists speeches_user_created_at_idx
 create index if not exists speeches_user_project_created_at_idx
     on public.speeches (user_id, project_id, created_at desc);
 
+-- Training labels for the audience/technicality model.
+-- user_id is nullable and set null on delete: a departed user's labels stay
+-- usable as training data even though the account is gone.
+create table if not exists public.labels (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid references auth.users(id) on delete set null,
+    text text not null,
+    label smallint not null check (label in (0, 1)),
+    audience_level smallint check (audience_level between 0 and 3),
+    domain text not null default 'general',
+    project_id text,
+    source text not null default 'human' check (source in ('human', 'synthetic', 'heuristic')),
+    created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists labels_created_at_idx
+    on public.labels (created_at desc);
+
+create index if not exists labels_level_domain_idx
+    on public.labels (audience_level, domain);
+
 alter table public.recordings enable row level security;
 alter table public.projects enable row level security;
 alter table public.speeches enable row level security;
+alter table public.labels enable row level security;
 
 drop policy if exists "Users can view their own projects" on public.projects;
 create policy "Users can view their own projects"
@@ -142,6 +164,17 @@ create policy "Users can delete their own speeches"
     for delete
     to authenticated
     using (auth.uid() = user_id);
+
+-- The server writes labels with the service role, which bypasses RLS entirely.
+-- This policy is defense-in-depth for any future direct-from-client write; the
+-- auth check in the /api/labels handler is what actually guards the table today.
+-- No select policy: only the service role reads the full set, for training.
+drop policy if exists "Users can insert their own labels" on public.labels;
+create policy "Users can insert their own labels"
+    on public.labels
+    for insert
+    to authenticated
+    with check (auth.uid() = user_id);
 
 drop policy if exists "Users can manage their own recording objects" on storage.objects;
 create policy "Users can manage their own recording objects"
