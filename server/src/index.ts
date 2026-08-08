@@ -15,7 +15,6 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const LABELS_PATH = path.join(__dirname, "..", "data", "labels.jsonl");
 const RECORDINGS_BUCKET = process.env.SUPABASE_RECORDINGS_BUCKET || 'recordings';
 const app = express();
 const port = process.env.PORT || 3000;
@@ -169,36 +168,55 @@ const transcribeHandler = async (req: Request, res: Response): Promise<void> => 
         }
     }
 };
-app.post("/api/labels", requireAuth, (req, res) => {
+app.post("/api/labels", requireAuth, async (req, res) => {
+    const authReq = req as MulterRequest;
+
+    // These rows are training data — an unauthenticated write is a poisoning vector.
+    if (!authReq.user?.id) {
+        return res.status(401).json({ ok: false, error: "Authentication required" });
+    }
+
+    if (!isSupabaseConfigured()) {
+        return res.status(503).json({ ok: false, error: "Supabase is not configured" });
+    }
+
     try {
         const { text, label, audienceLevel, domain, projectId } = req.body ?? {};
 
-        // Basic validation
         if (typeof text !== "string" || text.trim().length === 0) {
             return res.status(400).json({ ok: false, error: "Missing text" });
         }
         if (!(label === 0 || label === 1)) {
             return res.status(400).json({ ok: false, error: "label must be 0 or 1" });
         }
+        // Validate here so a bad value is a 400, not a CHECK-constraint 500.
+        if (audienceLevel !== undefined && audienceLevel !== null && ![0, 1, 2, 3].includes(audienceLevel)) {
+            return res.status(400).json({ ok: false, error: "audienceLevel must be 0, 1, 2, 3 or null" });
+        }
 
-        const record = {
-            text: text.trim(),
-            label,
-            audienceLevel: typeof audienceLevel === "number" ? audienceLevel : null,
-            domain: typeof domain === "string" ? domain : "general",
-            projectId: typeof projectId === "string" ? projectId : null,
-            createdAt: new Date().toISOString(),
-        };
+        const { data, error } = await supabaseAdmin
+            .from('labels')
+            .insert({
+                user_id: authReq.user.id,
+                text: text.trim(),
+                label,
+                audience_level: typeof audienceLevel === "number" ? audienceLevel : null,
+                domain: typeof domain === "string" && domain.trim() ? domain.trim() : "general",
+                project_id: typeof projectId === "string" ? projectId : null,
+                source: 'human',
+            })
+            .select('id')
+            .single();
 
-        // Ensure folder exists, then append JSONL
-        fs.mkdirSync(path.dirname(LABELS_PATH), { recursive: true });
+        if (error) {
+            console.error('[Labels] Insert failed:', error);
+            return res.status(500).json({ ok: false, error: "Failed to save label" });
+        }
 
-        console.log(`[DEBUG] Appending label to: ${LABELS_PATH}`);
-        fs.appendFileSync(LABELS_PATH, JSON.stringify(record) + "\n", "utf8");
-
-        return res.json({ ok: true, path: LABELS_PATH });
+        return res.json({ ok: true, id: data.id });
     } catch (err: any) {
-        return res.status(500).json({ ok: false, error: err?.message ?? "Unknown error" });
+        console.error('[Labels] Unexpected error:', err);
+        return res.status(500).json({ ok: false, error: "Failed to save label" });
     }
 });
 app.post('/api/transcribe', upload.single('audio'), transcribeHandler);

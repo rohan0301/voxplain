@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Mic, FolderOpen, Clock, Calendar, Target, Zap, AlertTriangle, BookOpen, Activity, X, Download, Trash2, Plus, Music } from 'lucide-react';
 
 import { Uploader } from './components/Uploader';
@@ -16,6 +16,7 @@ import { ProjectsView } from './components/ProjectsView';
 import type { Project } from './types/Project';
 import { CreateProjectModal } from './components/CreateProjectModal';
 import { EditProjectModal } from './components/EditProjectModal';
+import { LabelButtons } from './components/LabelButtons';
 
 const PROJECTS_STORAGE_PREFIX = 'voxplain_projects:';
 const LOCAL_PROJECTS_STORAGE_KEY = `${PROJECTS_STORAGE_PREFIX}local`;
@@ -71,6 +72,7 @@ const estimateSpeechTime = (text: string) => {
 function App() {
   const [report, setReport] = useState<TranscriptionResult | null>(null);
   const [technicalityResult, setTechnicalityResult] = useState<TechnicalityResult | null>(null);
+  const [showMoreLabels, setShowMoreLabels] = useState(false);
   const [practiceResult, setPracticeResult] = useState<PracticeAnalysisResult | null>(null);
   const [savedRecordings, setSavedRecordings] = useState<SavedRecording[]>([]);
   const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(null);
@@ -288,6 +290,16 @@ function App() {
   const activeSavedRecording = savedRecordings.find(recording => recording.id === selectedRecordingId) ?? null;
   const visibleRecordings = savedRecordings.filter(recording => !selectedProjectId || recording.projectId === selectedProjectId);
 
+  // Sentences from the transcript that the analyzer did NOT flag, offered for
+  // confirmation so the label set isn't drawn only from flagged text.
+  const nonHotspotSentences = useMemo(() => {
+    if (!report?.text || !technicalityResult) return [];
+    const flagged = new Set(technicalityResult.hotspots.map(h => h.sentence.trim()));
+    return (report.text.match(/[^.!?]+[.!?]+/g) || [])
+      .map(s => s.trim())
+      .filter(s => s.length > 20 && !flagged.has(s));
+  }, [report?.text, technicalityResult]);
+
   const handleAnalyze = async () => {
     if (!report?.text) return;
 
@@ -350,7 +362,7 @@ function App() {
   // --- RENDER LANDING PAGE (HOME) ---
   if (currentView === 'home') {
     return (
-      <div className="min-h-screen bg-[#111111] font-sans text-slate-50 selection:bg-orange-500 selection:text-white pt-16">
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-brand-100 selection:text-brand-900 pt-16">
         <TopNav
           currentMode={currentView === 'home' ? '' : currentView}
           onModeChange={() => { }} // Disabled on home
@@ -791,6 +803,19 @@ function App() {
                                       </ul>
                                     </div>
                                   </div>
+
+                                  <div className="pt-3 mt-1 border-t border-slate-100 flex justify-between items-center">
+                                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
+                                      Was this actually confusing?
+                                    </span>
+                                    <LabelButtons
+                                      sentence={hotspot.sentence.trim()}
+                                      audienceLevel={activeProject?.audienceLevel}
+                                      domain={activeProject?.domain}
+                                      projectId={activeProject?.id}
+                                      onSetAudience={() => setEditingProject(activeProject ?? null)}
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -798,6 +823,49 @@ function App() {
                         )}
                       </div>
                     </div>
+
+                    {/* Confirming sentences we did NOT flag keeps the training set from
+                        being a sample biased entirely toward flagged text. */}
+                    {nonHotspotSentences.length > 0 && (
+                      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <button
+                          onClick={() => setShowMoreLabels(!showMoreLabels)}
+                          className="w-full flex items-center justify-between px-6 py-4 bg-slate-50/50 hover:bg-slate-100 transition-colors text-left"
+                        >
+                          <span className="font-bold text-slate-800">Label more sentences</span>
+                          <span className="text-xs text-slate-500">
+                            {showMoreLabels ? 'Hide' : `${nonHotspotSentences.length} not flagged`}
+                          </span>
+                        </button>
+
+                        {showMoreLabels && (
+                          <div className="p-6 space-y-4 max-h-[400px] overflow-y-auto">
+                            <p className="text-xs text-slate-500">
+                              We didn't flag these. Tell us where we got it wrong — it's what trains the model.
+                            </p>
+                            {nonHotspotSentences.slice(0, 30).map((s, idx) => (
+                              <div key={idx} className="pb-3 border-b border-slate-100 last:border-0 last:pb-0">
+                                <p className="text-sm text-slate-700 mb-2 leading-relaxed">"{s}"</p>
+                                <div className="flex justify-end">
+                                  <LabelButtons
+                                    sentence={s}
+                                    audienceLevel={activeProject?.audienceLevel}
+                                    domain={activeProject?.domain}
+                                    projectId={activeProject?.id}
+                                    onSetAudience={() => setEditingProject(activeProject ?? null)}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                            {nonHotspotSentences.length > 30 && (
+                              <p className="text-xs text-center text-slate-400 pt-2">
+                                And {nonHotspotSentences.length - 30} more…
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                   </div>
                 )}

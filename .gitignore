@@ -18,4 +18,5 @@ server/dist
 client/dist
 ml/.venv
 ml/__pycache__
+ml/**/__pycache__
 ml/model_distilbert

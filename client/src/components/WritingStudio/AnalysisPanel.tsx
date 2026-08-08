@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { TextAnalysis } from './useTextAnalysis';
-import { Sparkles, AlertCircle, BrainCircuit, Target, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Check } from 'lucide-react';
-import { saveLabel } from '../../api';
+import { Sparkles, AlertCircle, BrainCircuit, Target, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
+import { LabelButtons } from '../LabelButtons';
 import type { AudienceLevel } from '../../types/Project';
 
 interface AnalysisPanelProps {
@@ -24,98 +24,18 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
     error,
     script,
     projectId,
-    audienceLevel = 1,
+    // Deliberately NOT defaulted: a label saved against an assumed level is a
+    // permanently mislabeled training row. LabelButtons prompts when it's unset.
+    audienceLevel,
     domain = 'general'
 }) => {
-    // State to track expanded section + labeling status
     const [showMoreLabels, setShowMoreLabels] = useState(false);
-    const [labeledSentences, setLabeledSentences] = useState<Record<string, number>>({}); // sentence -> label (0 or 1)
-    const [savingSentences, setSavingSentences] = useState<Record<string, boolean>>({}); // sentence -> isSaving
-    const [labelingError, setLabelingError] = useState<string | null>(null);
 
     // Helper for score color and label
     const getStatusInfo = (status: "below" | "near" | "above") => {
         if (status === 'near') return { color: 'text-green-600 bg-green-50 border-green-100', label: 'Borderline / On Target' };
         if (status === 'below') return { color: 'text-blue-600 bg-blue-50 border-blue-100', label: 'Accessible' };
         return { color: 'text-red-600 bg-red-50 border-red-100', label: 'Too Technical' };
-    };
-
-    const handleLabel = async (text: string, label: 0 | 1) => {
-        setLabelingError(null);
-        setSavingSentences(prev => ({ ...prev, [text]: true }));
-        try {
-            await saveLabel({
-                text,
-                label,
-                audienceLevel,
-                domain,
-                projectId
-            });
-            // Mark as labeled in UI
-            setLabeledSentences(prev => ({ ...prev, [text]: label }));
-        } catch (err) {
-            console.error(err);
-            setLabelingError(`Failed to save label for "${text.slice(0, 15)}..."`);
-        } finally {
-            setSavingSentences(prev => ({ ...prev, [text]: false }));
-        }
-    };
-
-    // Helper component for labeling buttons
-    const LabelButtons = ({ text }: { text: string }) => {
-        const existingLabel = labeledSentences[text];
-        const isLabeled = existingLabel !== undefined;
-        const isSaving = savingSentences[text];
-
-        if (isSaving) {
-            return (
-                <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs font-medium text-slate-500 italic animate-pulse">
-                        Saving...
-                    </span>
-                </div>
-            );
-        }
-
-        if (isLabeled) {
-            return (
-                <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs font-medium text-green-600 flex items-center bg-green-50 px-2 py-1 rounded">
-                        <Check className="w-3 h-3 mr-1" />
-                        Saved ({existingLabel === 0 ? 'Clear' : 'Confusing'})
-                    </span>
-                    <button
-                        onClick={() => {
-                            const newMap = { ...labeledSentences };
-                            delete newMap[text];
-                            setLabeledSentences(newMap);
-                        }}
-                        className="text-[10px] text-slate-400 underline hover:text-slate-600"
-                    >
-                        Change
-                    </button>
-                </div>
-            );
-        }
-
-        return (
-            <div className="flex items-center gap-2 mt-2">
-                <button
-                    onClick={() => handleLabel(text, 0)}
-                    disabled={isSaving}
-                    className="px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded hover:bg-slate-200 border border-slate-200 font-medium transition-colors disabled:opacity-50"
-                >
-                    Clear
-                </button>
-                <button
-                    onClick={() => handleLabel(text, 1)}
-                    disabled={isSaving}
-                    className="px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded hover:bg-slate-200 border-b-2 border-slate-300 font-medium transition-colors disabled:opacity-50"
-                >
-                    Confusing
-                </button>
-            </div>
-        );
     };
 
     // Derived list of sentences (simple split)
@@ -290,12 +210,6 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                                 <Target className="w-4 h-4 mr-1.5 text-brand-500" />
                                 Review Needed ({analysis.hotspots.length})
                             </div>
-                            {labelingError && (
-                                <div className="mb-2 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
-                                    {labelingError}
-                                </div>
-                            )}
-
                             {analysis.hotspots.length > 0 ? (
                                 <div className="space-y-3">
                                     {analysis.hotspots.map((h, i) => (
@@ -329,7 +243,12 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                                             <div className="pt-2 mt-2 border-t border-slate-100">
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Help us verify</span>
-                                                    <LabelButtons text={h.sentence.trim()} />
+                                                    <LabelButtons
+                                                        sentence={h.sentence.trim()}
+                                                        audienceLevel={audienceLevel}
+                                                        domain={domain}
+                                                        projectId={projectId}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -363,7 +282,12 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                                             <div key={idx} className="pb-3 border-b border-slate-100 last:border-0 last:pb-0">
                                                 <p className="text-sm text-slate-700 mb-1 leading-relaxed">"{s}"</p>
                                                 <div className="flex justify-end">
-                                                    <LabelButtons text={s} />
+                                                    <LabelButtons
+                                                        sentence={s}
+                                                        audienceLevel={audienceLevel}
+                                                        domain={domain}
+                                                        projectId={projectId}
+                                                    />
                                                 </div>
                                             </div>
                                         ))}
