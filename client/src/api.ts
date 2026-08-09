@@ -1,6 +1,13 @@
 import type { AudienceLevel } from './types/Project';
 import type { Project } from './types/Project';
 import { supabase } from './lib/supabase';
+import {
+    putRecording,
+    getAllRecordings,
+    removeRecording,
+    requestPersistence,
+    type StoredRecording,
+} from './lib/recordingStore';
 
 export interface AnalysisMetrics {
     wordCount: number;
@@ -255,56 +262,66 @@ export interface SaveRecordingPayload {
     recordedAt?: string;
 }
 
-export async function saveRecording(payload: SaveRecordingPayload): Promise<SavedRecording> {
-    const formData = new FormData();
-    formData.append('audio', payload.file);
-    formData.append('report', JSON.stringify(payload.report));
-    if (payload.projectId) formData.append('projectId', payload.projectId);
-    if (payload.projectName) formData.append('projectName', payload.projectName);
-    if (payload.recordedAt) formData.append('recordedAt', payload.recordedAt);
+/**
+ * Recordings are stored on the user's device, not the server — see
+ * lib/recordingStore.ts. These three functions keep the shape the old
+ * account-based API had, so callers didn't change.
+ *
+ * Object URLs are handed to <audio> elements, so they're cached per recording
+ * and revoked when the recording is deleted or the list is rebuilt. Revoking
+ * eagerly would break any player still pointing at one.
+ */
+const objectUrls = new Map<string, string>();
 
-    const headers = await authHeaders();
-
-    const response = await fetch(apiUrl('/recordings'), {
-        method: 'POST',
-        headers,
-        body: formData,
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to save recording');
+function toSavedRecording(row: StoredRecording): SavedRecording {
+    let url = objectUrls.get(row.id);
+    if (!url) {
+        url = URL.createObjectURL(row.audioBlob);
+        objectUrls.set(row.id, url);
     }
+    return {
+        id: row.id,
+        projectId: row.projectId,
+        projectName: row.projectName,
+        recordedAt: row.recordedAt,
+        audioUrl: url,
+        audioType: row.audioType,
+        fileName: row.fileName,
+        report: row.report,
+    };
+}
 
-    return response.json();
+export async function saveRecording(payload: SaveRecordingPayload): Promise<SavedRecording> {
+    const row: StoredRecording = {
+        id: crypto.randomUUID(),
+        projectId: payload.projectId ?? null,
+        projectName: payload.projectName || 'Untitled Session',
+        recordedAt: payload.recordedAt || new Date().toISOString(),
+        audioBlob: payload.file,
+        audioType: payload.file.type || 'audio/webm',
+        fileName: payload.file.name || 'voxplain-recording.webm',
+        report: payload.report,
+    };
+
+    await putRecording(row);
+    // Best-effort: ask the browser to keep this data around.
+    void requestPersistence();
+
+    return toSavedRecording(row);
 }
 
 export async function listRecordings(projectId?: string | null): Promise<SavedRecording[]> {
-    const headers = await authHeaders();
-    const params = new URLSearchParams();
-    if (projectId) params.set('projectId', projectId);
-
-    const response = await fetch(apiUrl(`/recordings${params.size ? `?${params.toString()}` : ''}`), {
-        method: 'GET',
-        headers,
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to load recordings');
-    }
-
-    return response.json();
+    const rows = await getAllRecordings();
+    const filtered = projectId ? rows.filter(r => r.projectId === projectId) : rows;
+    return filtered.map(toSavedRecording);
 }
 
 export async function deleteRecording(recordingId: string): Promise<void> {
-    const headers = await authHeaders();
-
-    const response = await fetch(apiUrl(`/recordings/${recordingId}`), {
-        method: 'DELETE',
-        headers,
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to delete recording');
+    await removeRecording(recordingId);
+    const url = objectUrls.get(recordingId);
+    if (url) {
+        URL.revokeObjectURL(url);
+        objectUrls.delete(recordingId);
     }
 }
 
