@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Check } from 'lucide-react';
 import { saveLabel } from '../api';
-import { useAuth } from '../hooks/useAuth';
 import type { AudienceLevel } from '../types/Project';
 
 interface LabelButtonsProps {
@@ -34,11 +33,8 @@ export const LabelButtons: React.FC<LabelButtonsProps> = ({
     onSetAudience,
     className = '',
 }) => {
-    const { isLoggedIn } = useAuth();
     const [label, setLabel] = useState<0 | 1 | null>(null);
     const [error, setError] = useState<string | null>(null);
-
-    if (!isLoggedIn) return null;
 
     if (audienceLevel === undefined) {
         return (
