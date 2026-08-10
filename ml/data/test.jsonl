@@ -1,3 +1,65 @@
-{"text": "BM25 and ANN search", "label": 1, "audienceLevel": 0, "domain": "tech"}
-{"text": "That reduces errors compared to a model that guesses from memory.", "label": 0, "audienceLevel": 1, "domain": "general"}
-{"text": "We run hybrid retrieval with BM25, ANN search, and cosine similarity, then feed results into a prompt template with chain-of-thought style reasoning and temperature control.", "label": 1, "audienceLevel": 1, "domain": "general"}
+{"text": "Your body is like a big team of tiny workers, and each worker is called a cell.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "We also use LoRA fine-tuning on a transformer backbone, plus RLHF, to improve response quality across domains.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "That reduces errors compared to a model that guesses from memory.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "This is useful because it reduces guessing and helps the user trust the result.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "This is useful because it reduces guessing and helps the user trust the result.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "We shard the write path and accept eventual consistency across replicas.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We shard the write path and accept eventual consistency across replicas.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We shard the write path and accept eventual consistency across replicas.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We shard the write path and accept eventual consistency across replicas.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "Revenue recognition shifts under ASC 606 for multi-year contracts.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Revenue recognition shifts under ASC 606 for multi-year contracts.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Revenue recognition shifts under ASC 606 for multi-year contracts.", "label": 1, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Revenue recognition shifts under ASC 606 for multi-year contracts.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "Cold starts on the serverless tier are inflating our p99 latency.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Cold starts on the serverless tier are inflating our p99 latency.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Cold starts on the serverless tier are inflating our p99 latency.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Cold starts on the serverless tier are inflating our p99 latency.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "The price of the bond and the cost of insuring it moved apart, which is unusual.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "The price of the bond and the cost of insuring it moved apart, which is unusual.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "The price of the bond and the cost of insuring it moved apart, which is unusual.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "The price of the bond and the cost of insuring it moved apart, which is unusual.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "This is a P0 with a hard stop at EOQ.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "This is a P0 with a hard stop at EOQ.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "This is a P0 with a hard stop at EOQ.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "This is a P0 with a hard stop at EOQ.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "In the study, people taking the new drug were about 28% less likely to get worse over the same period.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "In the study, people taking the new drug were about 28% less likely to get worse over the same period.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "In the study, people taking the new drug were about 28% less likely to get worse over the same period.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "In the study, people taking the new drug were about 28% less likely to get worse over the same period.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The API is eventually consistent, not read-your-writes.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "The API is eventually consistent, not read-your-writes.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "The API is eventually consistent, not read-your-writes.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "The API is eventually consistent, not read-your-writes.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We backpropagate through a frozen encoder with a LoRA adapter.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We backpropagate through a frozen encoder with a LoRA adapter.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We backpropagate through a frozen encoder with a LoRA adapter.", "label": 1, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We backpropagate through a frozen encoder with a LoRA adapter.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "The lesion was hypoechoic on ultrasound with irregular margins.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "The lesion was hypoechoic on ultrasound with irregular margins.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The lesion was hypoechoic on ultrasound with irregular margins.", "label": 1, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The lesion was hypoechoic on ultrasound with irregular margins.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Let's socialize the deck before we align on the north star metric.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Let's socialize the deck before we align on the north star metric.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Let's socialize the deck before we align on the north star metric.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Let's socialize the deck before we align on the north star metric.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "The patient is on a PPI for GERD.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The patient is on a PPI for GERD.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The patient is on a PPI for GERD.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The patient is on a PPI for GERD.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "We should derisk the dependency before we commit headcount.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "We should derisk the dependency before we commit headcount.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "We should derisk the dependency before we commit headcount.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "We should derisk the dependency before we commit headcount.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "We use the OAuth device flow for headless clients.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We use the OAuth device flow for headless clients.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We use the OAuth device flow for headless clients.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We use the OAuth device flow for headless clients.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "If something extraordinary and outside anyone's control happens, neither side has to deliver.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "If something extraordinary and outside anyone's control happens, neither side has to deliver.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "If something extraordinary and outside anyone's control happens, neither side has to deliver.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "If something extraordinary and outside anyone's control happens, neither side has to deliver.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "It's a cov-lite unitranche with a PIK toggle.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "It's a cov-lite unitranche with a PIK toggle.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "It's a cov-lite unitranche with a PIK toggle.", "label": 1, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "It's a cov-lite unitranche with a PIK toggle.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}

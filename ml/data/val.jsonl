@@ -1,2 +1,58 @@
-{"text": "Our stack uses Kubernetes, Docker, Redis, and Postgres, and we deploy via CI/CD pipelines with observability through OpenTelemetry, Prometheus, and Grafana.", "label": 1, "audienceLevel": 1, "domain": "general"}
-{"text": "We built a tool that helps people get accurate answers from their own documents.", "label": 0, "audienceLevel": 0, "domain": "tech"}
+{"text": "Today I’m pitching a platform that uses LLMs with RAG, vector embeddings, and a reranker to reduce hallucinations.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "It's working on stuff like that all the time, even while you're asleep.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "The team doesn't have spare time in this two-week cycle.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "The team doesn't have spare time in this two-week cycle.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "The team doesn't have spare time in this two-week cycle.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "The team doesn't have spare time in this two-week cycle.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "If a request gets sent twice by accident, we recognize it and only charge the customer once.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "If a request gets sent twice by accident, we recognize it and only charge the customer once.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "If a request gets sent twice by accident, we recognize it and only charge the customer once.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "If a request gets sent twice by accident, we recognize it and only charge the customer once.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "Bandwidth is constrained this sprint.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Bandwidth is constrained this sprint.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Bandwidth is constrained this sprint.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Bandwidth is constrained this sprint.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "We quantized the weights to int8 for edge inference.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We quantized the weights to int8 for edge inference.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We quantized the weights to int8 for edge inference.", "label": 1, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We quantized the weights to int8 for edge inference.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "The patient shouldn't eat or drink anything after midnight.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "The patient shouldn't eat or drink anything after midnight.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The patient shouldn't eat or drink anything after midnight.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The patient shouldn't eat or drink anything after midnight.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "If our debt climbs too high relative to earnings, extra restrictions from the lender kick in automatically.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "If our debt climbs too high relative to earnings, extra restrictions from the lender kick in automatically.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "If our debt climbs too high relative to earnings, extra restrictions from the lender kick in automatically.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "If our debt climbs too high relative to earnings, extra restrictions from the lender kick in automatically.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "We released it to a small slice of users first, and it turns itself off automatically if errors spike.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We released it to a small slice of users first, and it turns itself off automatically if errors spike.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We released it to a small slice of users first, and it turns itself off automatically if errors spike.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We released it to a small slice of users first, and it turns itself off automatically if errors spike.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "Before answering, the system searches our documents and uses what it finds, so answers stay tied to real sources.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Before answering, the system searches our documents and uses what it finds, so answers stay tied to real sources.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Before answering, the system searches our documents and uses what it finds, so answers stay tied to real sources.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Before answering, the system searches our documents and uses what it finds, so answers stay tied to real sources.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We're titrating the dose against the INR.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "We're titrating the dose against the INR.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "We're titrating the dose against the INR.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "We're titrating the dose against the INR.", "label": 1, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "We store some data twice so that loading a page no longer takes hundreds of small database trips.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We store some data twice so that loading a page no longer takes hundreds of small database trips.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We store some data twice so that loading a page no longer takes hundreds of small database trips.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We store some data twice so that loading a page no longer takes hundreds of small database trips.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "If interest rates rise, the value of what we hold falls sharply.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "If interest rates rise, the value of what we hold falls sharply.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "If interest rates rise, the value of what we hold falls sharply.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "If interest rates rise, the value of what we hold falls sharply.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "The tumor is medium-sized, has reached nearby lymph nodes, and hasn't spread to distant organs.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "The tumor is medium-sized, has reached nearby lymph nodes, and hasn't spread to distant organs.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The tumor is medium-sized, has reached nearby lymph nodes, and hasn't spread to distant organs.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The tumor is medium-sized, has reached nearby lymph nodes, and hasn't spread to distant organs.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Let's share the slides with people one on one first, then agree on the single number we're aiming at.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Let's share the slides with people one on one first, then agree on the single number we're aiming at.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Let's share the slides with people one on one first, then agree on the single number we're aiming at.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Let's share the slides with people one on one first, then agree on the single number we're aiming at.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "We're long gamma into earnings.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "We're long gamma into earnings.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "We're long gamma into earnings.", "label": 1, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "We're long gamma into earnings.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}

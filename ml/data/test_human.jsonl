@@ -1,0 +1,5 @@
+{"text": "Your body is like a big team of tiny workers, and each worker is called a cell.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "We also use LoRA fine-tuning on a transformer backbone, plus RLHF, to improve response quality across domains.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "That reduces errors compared to a model that guesses from memory.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "This is useful because it reduces guessing and helps the user trust the result.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "This is useful because it reduces guessing and helps the user trust the result.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "human"}

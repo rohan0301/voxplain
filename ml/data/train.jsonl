@@ -1,16 +1,484 @@
-{"text": "We also use LoRA fine-tuning on a transformer backbone, plus RLHF, to improve response quality across domains.", "label": 1, "audienceLevel": 1, "domain": "general"}
-{"text": "We also use LoRA fine-tuning on a transformer backbone, plus RLHF, to improve response quality across domains.", "label": 1, "audienceLevel": 1, "domain": "general"}
-{"text": "This is useful because it reduces guessing and helps the user trust the result.", "label": 0, "audienceLevel": 1, "domain": "general"}
-{"text": "We run hybrid retrieval with BM25, ANN search, and cosine similarity, then feed results into a prompt template with chain-of-thought style reasoning and temperature control.", "label": 1, "audienceLevel": 1, "domain": "general"}
-{"text": "It works like this: first it searches for the most relevant parts of your files, then it writes an answer using only what it found.", "label": 0, "audienceLevel": 0, "domain": "tech"}
-{"text": "It works like this: first it searches for the most relevant parts of your files, then it writes an answer using only what it found.", "label": 0, "audienceLevel": 1, "domain": "general"}
-{"text": "If the answer can’t be supported by the documents, the tool tells you it doesn’t have enough information instead of making something up.", "label": 0, "audienceLevel": 1, "domain": "general"}
-{"text": "We also use LoRA fine-tuning on a transformer backbone, plus RLHF, to improve response quality across domains.", "label": 1, "audienceLevel": 1, "domain": "general"}
-{"text": "Today I’m pitching a platform that uses LLMs with RAG, vector embeddings, and a reranker to reduce hallucinations.", "label": 1, "audienceLevel": 1, "domain": "general"}
-{"text": "We built a tool that helps people get accurate answers from their own documents.", "label": 0, "audienceLevel": 1, "domain": "general"}
-{"text": "Today I’m pitching a platform that uses LLMs with RAG, vector embeddings, and a reranker to reduce hallucinations.", "label": 1, "audienceLevel": 1, "domain": "general"}
-{"text": "This is useful because it reduces guessing and helps the user trust the result.", "label": 0, "audienceLevel": 0, "domain": "tech"}
-{"text": "When I say “RAG,” I mean the system first searches a knowledge base, then writes an answer using those sources.", "label": 0, "audienceLevel": 1, "domain": "general"}
-{"text": "If the answer can’t be supported by the documents, the tool tells you it doesn’t have enough information instead of making something up.", "label": 0, "audienceLevel": 0, "domain": "tech"}
-{"text": "The key point is: the model answers using verified context.", "label": 0, "audienceLevel": 1, "domain": "general"}
-{"text": "Our stack uses Kubernetes, Docker, Redis, and Postgres, and we deploy via CI/CD pipelines with observability through OpenTelemetry, Prometheus, and Grafana.", "label": 1, "audienceLevel": 1, "domain": "general"}
+{"text": "As you type, notice the word count updates below.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "Open questions remain around whether current pretraining objectives are sample-efficient relative to the manifold hypothesis, and whether RLHF actually shifts the underlying capability distribution or merely re-weights existing modes — recent DPO ablations point toward the latter.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "The key point is: the model answers using verified context.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "Your body knows what to do without you even thinking about it.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "It works like this: first it searches for the most relevant parts of your files, then it writes an answer using only what it found.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "It works like this: first it searches for the most relevant parts of your files, then it writes an answer using only what it found.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "When I say “RAG,” I mean the system first searches a knowledge base, then writes an answer using those sources.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "This leaves open whether the Born rule's probabilistic weighting is derivable from unitary dynamics alone, as Everettian many-worlds proponents claim via decision-theoretic arguments, or whether it requires an additional stochastic collapse mechanism as in GRW-type spontaneous localization models.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "Others are like security guards — they fight off any germs that try to sneak in.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "If the answer can’t be supported by the documents, the tool tells you it doesn’t have enough information instead of making something up.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "If the answer can’t be supported by the documents, the tool tells you it doesn’t have enough information instead of making something up.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "When you get a cut, lots of these little workers rush over to the spot to fix it up.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "That's why most cuts heal on their own in a few days.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "We built a tool that helps people get accurate answers from their own documents.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "We built a tool that helps people get accurate answers from their own documents.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "We run hybrid retrieval with BM25, ANN search, and cosine similarity, then feed results into a prompt template with chain-of-thought style reasoning and temperature control.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "Our stack uses Kubernetes, Docker, Redis, and Postgres, and we deploy via CI/CD pipelines with observability through OpenTelemetry, Prometheus, and Grafana.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "The wavefunction collapse postulate remains ontologically ambiguous under decoherence-based interpretations, since the reduced density matrix obtained by tracing out environmental degrees of freedom yields an improper mixture rather than a proper one, meaning the apparent classicality of pointer states emerges only relative to a chosen basis determined by the system-environment interaction Hamiltonian.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "Recent work suggests the quadratic attention bottleneck can be substantially mitigated through linear-attention variants and SSM hybrids, though empirical scaling laws still favor dense softmax attention at moderate parameter counts.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "BM25 and ANN search", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "This editor is designed to help you craft the perfect speech.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "The induction head circuit work provides a mechanistic story for in-context learning emergence, and follow-up SAE-based interpretability has begun decomposing residual stream features into monosemantic directions.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "Some cells are like construction workers — they patch the hole.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "human"}
+{"text": "Welcome to the Voxplain Writing Studio!", "label": 1, "audienceLevel": 1, "domain": "general", "source": "human"}
+{"text": "We think that putting the tube in accidentally let air leak in around the lung.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "We think that putting the tube in accidentally let air leak in around the lung.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "We think that putting the tube in accidentally let air leak in around the lung.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "We think that putting the tube in accidentally let air leak in around the lung.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "She picked up an infection in the hospital after her surgery.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "She picked up an infection in the hospital after her surgery.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "She picked up an infection in the hospital after her surgery.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "She picked up an infection in the hospital after her surgery.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "There's a lot of low-hanging fruit in the onboarding funnel.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "There's a lot of low-hanging fruit in the onboarding funnel.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "There's a lot of low-hanging fruit in the onboarding funnel.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "There's a lot of low-hanging fruit in the onboarding funnel.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "We're running a negative carry position until the curve steepens.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "We're running a negative carry position until the curve steepens.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "We're running a negative carry position until the curve steepens.", "label": 1, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "We're running a negative carry position until the curve steepens.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "We acknowledged that a business we bought is worth less than we paid, and wrote down the difference.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "We acknowledged that a business we bought is worth less than we paid, and wrote down the difference.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "We acknowledged that a business we bought is worth less than we paid, and wrote down the difference.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "We acknowledged that a business we bought is worth less than we paid, and wrote down the difference.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "Our p95 tail latency regressed after the GC tuning change.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Our p95 tail latency regressed after the GC tuning change.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Our p95 tail latency regressed after the GC tuning change.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Our p95 tail latency regressed after the GC tuning change.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "The tissue sample showed no sign of cancer.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The tissue sample showed no sign of cancer.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The tissue sample showed no sign of cancer.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The tissue sample showed no sign of cancer.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "We denormalized the schema to eliminate an N+1 query pattern.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We denormalized the schema to eliminate an N+1 query pattern.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We denormalized the schema to eliminate an N+1 query pattern.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We denormalized the schema to eliminate an N+1 query pattern.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "She developed a nosocomial infection post-op.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "She developed a nosocomial infection post-op.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "She developed a nosocomial infection post-op.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "She developed a nosocomial infection post-op.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The way we represent documents slowly went stale, so search started missing things it used to find.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "The way we represent documents slowly went stale, so search started missing things it used to find.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "The way we represent documents slowly went stale, so search started missing things it used to find.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "The way we represent documents slowly went stale, so search started missing things it used to find.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We're operationalizing the framework across verticals.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "We're operationalizing the framework across verticals.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "We're operationalizing the framework across verticals.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "We're operationalizing the framework across verticals.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "He fainted, and we found that his heart was beating irregularly.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "He fainted, and we found that his heart was beating irregularly.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "He fainted, and we found that his heart was beating irregularly.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "He fainted, and we found that his heart was beating irregularly.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The transplanted kidney is slowly scarring and losing function.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The transplanted kidney is slowly scarring and losing function.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The transplanted kidney is slowly scarring and losing function.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The transplanted kidney is slowly scarring and losing function.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "The deal is accretive to EPS in year two.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "The deal is accretive to EPS in year two.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "The deal is accretive to EPS in year two.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "The deal is accretive to EPS in year two.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "The unusually good results have drifted back to normal, which was always likely to happen.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "The unusually good results have drifted back to normal, which was always likely to happen.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "The unusually good results have drifted back to normal, which was always likely to happen.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "The unusually good results have drifted back to normal, which was always likely to happen.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Feature flags let us decouple deploy from release.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Feature flags let us decouple deploy from release.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Feature flags let us decouple deploy from release.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Feature flags let us decouple deploy from release.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "For every dollar of sales, we kept two cents less in core profit than we did last year.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "For every dollar of sales, we kept two cents less in core profit than we did last year.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "For every dollar of sales, we kept two cents less in core profit than we did last year.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "For every dollar of sales, we kept two cents less in core profit than we did last year.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "It's hard to tell which ad earned a sale, because some people see an ad without clicking and buy later.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "It's hard to tell which ad earned a sale, because some people see an ad without clicking and buy later.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "It's hard to tell which ad earned a sale, because some people see an ad without clicking and buy later.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "It's hard to tell which ad earned a sale, because some people see an ad without clicking and buy later.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Net dollar retention came in at 118%.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Net dollar retention came in at 118%.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Net dollar retention came in at 118%.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Net dollar retention came in at 118%.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "We found it by chance, on a scan that had been ordered for a completely different reason.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "We found it by chance, on a scan that had been ordered for a completely different reason.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "We found it by chance, on a scan that had been ordered for a completely different reason.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "We found it by chance, on a scan that had been ordered for a completely different reason.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "The biopsy showed no evidence of malignancy.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The biopsy showed no evidence of malignancy.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The biopsy showed no evidence of malignancy.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The biopsy showed no evidence of malignancy.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "There are some easy improvements to make in how new users get started.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "There are some easy improvements to make in how new users get started.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "There are some easy improvements to make in how new users get started.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "There are some easy improvements to make in how new users get started.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "A test of her average blood sugar over the past three months came back too high.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "A test of her average blood sugar over the past three months came back too high.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "A test of her average blood sugar over the past three months came back too high.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "A test of her average blood sugar over the past three months came back too high.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "On the scan the lump showed up dark and with ragged edges, which is a concerning pattern.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "On the scan the lump showed up dark and with ragged edges, which is a concerning pattern.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "On the scan the lump showed up dark and with ragged edges, which is a concerning pattern.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "On the scan the lump showed up dark and with ragged edges, which is a concerning pattern.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Giving a preventive blood thinner meant fewer patients developed dangerous clots after joint replacement.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Giving a preventive blood thinner meant fewer patients developed dangerous clots after joint replacement.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "Giving a preventive blood thinner meant fewer patients developed dangerous clots after joint replacement.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "Giving a preventive blood thinner meant fewer patients developed dangerous clots after joint replacement.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "If interest rates move, our losses grow faster than our gains — the risk is lopsided.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "If interest rates move, our losses grow faster than our gains — the risk is lopsided.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "If interest rates move, our losses grow faster than our gains — the risk is lopsided.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "If interest rates move, our losses grow faster than our gains — the risk is lopsided.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "We're holding less of the companies that suffer in a downturn and more of the ones people buy from regardless.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "We're holding less of the companies that suffer in a downturn and more of the ones people buy from regardless.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "We're holding less of the companies that suffer in a downturn and more of the ones people buy from regardless.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "We're holding less of the companies that suffer in a downturn and more of the ones people buy from regardless.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "Large customers simply won't consider us without it.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Large customers simply won't consider us without it.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Large customers simply won't consider us without it.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Large customers simply won't consider us without it.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Let's get alignment from the DRI before we ship.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Let's get alignment from the DRI before we ship.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Let's get alignment from the DRI before we ship.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Let's get alignment from the DRI before we ship.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Existing customers spent 18% more with us this year than last, even after counting the ones who left.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Existing customers spent 18% more with us this year than last, even after counting the ones who left.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Existing customers spent 18% more with us this year than last, even after counting the ones who left.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Existing customers spent 18% more with us this year than last, even after counting the ones who left.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "We shrank the model so it runs on the phone itself instead of calling out to a server.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We shrank the model so it runs on the phone itself instead of calling out to a server.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We shrank the model so it runs on the phone itself instead of calling out to a server.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We shrank the model so it runs on the phone itself instead of calling out to a server.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We're seeing regression to the mean in the post-campaign numbers.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "We're seeing regression to the mean in the post-campaign numbers.", "label": 1, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "We're seeing regression to the mean in the post-campaign numbers.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "We're seeing regression to the mean in the post-campaign numbers.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Findings were incidental on imaging performed for another indication.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Findings were incidental on imaging performed for another indication.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "Findings were incidental on imaging performed for another indication.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "Findings were incidental on imaging performed for another indication.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "He presented with syncope and was found to be in atrial fibrillation.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "He presented with syncope and was found to be in atrial fibrillation.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "He presented with syncope and was found to be in atrial fibrillation.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "He presented with syncope and was found to be in atrial fibrillation.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "We can ship the code switched off, then turn it on for users whenever we choose.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We can ship the code switched off, then turn it on for users whenever we choose.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We can ship the code switched off, then turn it on for users whenever we choose.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We can ship the code switched off, then turn it on for users whenever we choose.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We're underweight cyclicals and overweight staples.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "We're underweight cyclicals and overweight staples.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "We're underweight cyclicals and overweight staples.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "We're underweight cyclicals and overweight staples.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "We're taking a closer look at the group of customers who left.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "We're taking a closer look at the group of customers who left.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "We're taking a closer look at the group of customers who left.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "We're taking a closer look at the group of customers who left.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "We locked in an exchange rate ahead of time, so currency swings don't hit our results.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "We locked in an exchange rate ahead of time, so currency swings don't hit our results.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "We locked in an exchange rate ahead of time, so currency swings don't hit our results.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "We locked in an exchange rate ahead of time, so currency swings don't hit our results.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "Let's take that offline and circle back.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Let's take that offline and circle back.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Let's take that offline and circle back.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Let's take that offline and circle back.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Serum creatinine rose, suggesting acute kidney injury.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "Serum creatinine rose, suggesting acute kidney injury.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "Serum creatinine rose, suggesting acute kidney injury.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "Serum creatinine rose, suggesting acute kidney injury.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "A blood test showed the kidneys had suddenly started working less well.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "A blood test showed the kidneys had suddenly started working less well.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "A blood test showed the kidneys had suddenly started working less well.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "A blood test showed the kidneys had suddenly started working less well.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Her HbA1c is 8.4, indicating poor glycemic control.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Her HbA1c is 8.4, indicating poor glycemic control.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "Her HbA1c is 8.4, indicating poor glycemic control.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "Her HbA1c is 8.4, indicating poor glycemic control.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "We're adjusting the amount of blood thinner based on regular tests of how quickly the blood clots.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "We're adjusting the amount of blood thinner based on regular tests of how quickly the blood clots.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "We're adjusting the amount of blood thinner based on regular tests of how quickly the blood clots.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "We're adjusting the amount of blood thinner based on regular tests of how quickly the blood clots.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "A networking layer encrypts traffic between our services and stops a failing one from dragging down the rest.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "A networking layer encrypts traffic between our services and stops a failing one from dragging down the rest.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "A networking layer encrypts traffic between our services and stops a failing one from dragging down the rest.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "A networking layer encrypts traffic between our services and stops a failing one from dragging down the rest.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "Patients were short of breath, we don't know why, and the usual inhalers didn't help.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "Patients were short of breath, we don't know why, and the usual inhalers didn't help.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "Patients were short of breath, we don't know why, and the usual inhalers didn't help.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "Patients were short of breath, we don't know why, and the usual inhalers didn't help.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "This is table stakes for the enterprise segment.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "This is table stakes for the enterprise segment.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "This is table stakes for the enterprise segment.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "This is table stakes for the enterprise segment.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "The patient is NPO after midnight.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "The patient is NPO after midnight.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The patient is NPO after midnight.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The patient is NPO after midnight.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Force majeure excuses performance under the agreement.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Force majeure excuses performance under the agreement.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Force majeure excuses performance under the agreement.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Force majeure excuses performance under the agreement.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "The tumor was staged T2N1M0.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "The tumor was staged T2N1M0.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The tumor was staged T2N1M0.", "label": 1, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The tumor was staged T2N1M0.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The waterfall pays LPs their preferred return ahead of carry.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "The waterfall pays LPs their preferred return ahead of carry.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "The waterfall pays LPs their preferred return ahead of carry.", "label": 1, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "The waterfall pays LPs their preferred return ahead of carry.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "For the slowest one in twenty requests, the site got noticeably worse after we changed a memory setting.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "For the slowest one in twenty requests, the site got noticeably worse after we changed a memory setting.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "For the slowest one in twenty requests, the site got noticeably worse after we changed a memory setting.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "For the slowest one in twenty requests, the site got noticeably worse after we changed a memory setting.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "The patient takes a medication that reduces stomach acid, because of heartburn and reflux.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The patient takes a medication that reduces stomach acid, because of heartburn and reflux.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The patient takes a medication that reduces stomach acid, because of heartburn and reflux.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The patient takes a medication that reduces stomach acid, because of heartburn and reflux.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "Customers are now taking about ten weeks to pay us, which is longer than they used to.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Customers are now taking about ten weeks to pay us, which is longer than they used to.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Customers are now taking about ten weeks to pay us, which is longer than they used to.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Customers are now taking about ten weeks to pay us, which is longer than they used to.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "Marking to market triggered a margin call.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Marking to market triggered a margin call.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Marking to market triggered a margin call.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Marking to market triggered a margin call.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "The findings were non-significant at conventional alpha.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "The findings were non-significant at conventional alpha.", "label": 1, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "The findings were non-significant at conventional alpha.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "The findings were non-significant at conventional alpha.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "The graft showed signs of chronic allograft nephropathy.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The graft showed signs of chronic allograft nephropathy.", "label": 1, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The graft showed signs of chronic allograft nephropathy.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The graft showed signs of chronic allograft nephropathy.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "Backpressure propagates upstream when the consumer lags.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Backpressure propagates upstream when the consumer lags.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Backpressure propagates upstream when the consumer lags.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Backpressure propagates upstream when the consumer lags.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "Let's discuss that separately afterwards and return to it.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Let's discuss that separately afterwards and return to it.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Let's discuss that separately afterwards and return to it.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Let's discuss that separately afterwards and return to it.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Embedding drift degraded recall over six months.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Embedding drift degraded recall over six months.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Embedding drift degraded recall over six months.", "label": 1, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Embedding drift degraded recall over six months.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "The rash is consistent with an urticarial drug eruption.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "The rash is consistent with an urticarial drug eruption.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The rash is consistent with an urticarial drug eruption.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The rash is consistent with an urticarial drug eruption.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The trial met its primary endpoint with a hazard ratio of 0.72.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "The trial met its primary endpoint with a hazard ratio of 0.72.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The trial met its primary endpoint with a hazard ratio of 0.72.", "label": 1, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The trial met its primary endpoint with a hazard ratio of 0.72.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "If someone sues them claiming we copied an idea, we cover the cost.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "If someone sues them claiming we copied an idea, we cover the cost.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "If someone sues them claiming we copied an idea, we cover the cost.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "If someone sues them claiming we copied an idea, we cover the cost.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Idempotency keys prevent duplicate charges on retry.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Idempotency keys prevent duplicate charges on retry.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Idempotency keys prevent duplicate charges on retry.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Idempotency keys prevent duplicate charges on retry.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "The portfolio has material duration risk.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "The portfolio has material duration risk.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "The portfolio has material duration risk.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "The portfolio has material duration risk.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "Holding this costs us money every month, and it only pays off if long-term rates rise relative to short-term ones.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Holding this costs us money every month, and it only pays off if long-term rates rise relative to short-term ones.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Holding this costs us money every month, and it only pays off if long-term rates rise relative to short-term ones.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Holding this costs us money every month, and it only pays off if long-term rates rise relative to short-term ones.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "The contract has an auto-renewing evergreen clause.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "The contract has an auto-renewing evergreen clause.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "The contract has an auto-renewing evergreen clause.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "The contract has an auto-renewing evergreen clause.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "We should make sure that other piece won't fall through before we assign people to this.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "We should make sure that other piece won't fall through before we assign people to this.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "We should make sure that other piece won't fall through before we assign people to this.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "We should make sure that other piece won't fall through before we assign people to this.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "The accounting rules changed for when we're allowed to count money from long-term contracts as sales.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "The accounting rules changed for when we're allowed to count money from long-term contracts as sales.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "The accounting rules changed for when we're allowed to count money from long-term contracts as sales.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "The accounting rules changed for when we're allowed to count money from long-term contracts as sales.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "We published our plan before collecting any data, so we couldn't go fishing for a flattering result.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "We published our plan before collecting any data, so we couldn't go fishing for a flattering result.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "We published our plan before collecting any data, so we couldn't go fishing for a flattering result.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "We published our plan before collecting any data, so we couldn't go fishing for a flattering result.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Attribution is muddied by view-through conversions.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Attribution is muddied by view-through conversions.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Attribution is muddied by view-through conversions.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Attribution is muddied by view-through conversions.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "EBITDA margin compressed 200 basis points year over year.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "EBITDA margin compressed 200 basis points year over year.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "EBITDA margin compressed 200 basis points year over year.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "EBITDA margin compressed 200 basis points year over year.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "We hedged the FX exposure with a rolling forward.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "We hedged the FX exposure with a rolling forward.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "We hedged the FX exposure with a rolling forward.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "We hedged the FX exposure with a rolling forward.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "The improvement was small, but we're reasonably confident it's real and not noise.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "The improvement was small, but we're reasonably confident it's real and not noise.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "The improvement was small, but we're reasonably confident it's real and not noise.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "The improvement was small, but we're reasonably confident it's real and not noise.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "The model exhibits catastrophic forgetting after sequential fine-tuning.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "The model exhibits catastrophic forgetting after sequential fine-tuning.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "The model exhibits catastrophic forgetting after sequential fine-tuning.", "label": 1, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "The model exhibits catastrophic forgetting after sequential fine-tuning.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We suspect an iatrogenic pneumothorax following line placement.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "We suspect an iatrogenic pneumothorax following line placement.", "label": 1, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "We suspect an iatrogenic pneumothorax following line placement.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "We suspect an iatrogenic pneumothorax following line placement.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "We rolled it out behind a canary with automatic rollback on SLO burn.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We rolled it out behind a canary with automatic rollback on SLO burn.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We rolled it out behind a canary with automatic rollback on SLO burn.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We rolled it out behind a canary with automatic rollback on SLO burn.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "Unless someone actively cancels, the contract keeps renewing itself indefinitely.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Unless someone actively cancels, the contract keeps renewing itself indefinitely.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Unless someone actively cancels, the contract keeps renewing itself indefinitely.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Unless someone actively cancels, the contract keeps renewing itself indefinitely.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "When we train it on a new task, it loses much of what it had already learned.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "When we train it on a new task, it loses much of what it had already learned.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "When we train it on a new task, it loses much of what it had already learned.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "When we train it on a new task, it loses much of what it had already learned.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We use RAG with a reranker over a vector store to ground responses.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We use RAG with a reranker over a vector store to ground responses.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We use RAG with a reranker over a vector store to ground responses.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We use RAG with a reranker over a vector store to ground responses.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We initiated empiric broad-spectrum antibiotics pending cultures.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "We initiated empiric broad-spectrum antibiotics pending cultures.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "We initiated empiric broad-spectrum antibiotics pending cultures.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "We initiated empiric broad-spectrum antibiotics pending cultures.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Our position makes money if the stock moves sharply around the earnings announcement, in either direction.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Our position makes money if the stock moves sharply around the earnings announcement, in either direction.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Our position makes money if the stock moves sharply around the earnings announcement, in either direction.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Our position makes money if the stock moves sharply around the earnings announcement, in either direction.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "This is our top priority and it has to be finished by the end of the quarter.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "This is our top priority and it has to be finished by the end of the quarter.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "This is our top priority and it has to be finished by the end of the quarter.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "This is our top priority and it has to be finished by the end of the quarter.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "The basis widened between the cash bond and the CDS.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "The basis widened between the cash bond and the CDS.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "The basis widened between the cash bond and the CDS.", "label": 1, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "The basis widened between the cash bond and the CDS.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "Effect sizes were modest but the confidence intervals excluded zero.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Effect sizes were modest but the confidence intervals excluded zero.", "label": 1, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Effect sizes were modest but the confidence intervals excluded zero.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Effect sizes were modest but the confidence intervals excluded zero.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "The first request after a quiet period is slow, which drags down our worst-case response time.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "The first request after a quiet period is slow, which drags down our worst-case response time.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "The first request after a quiet period is slow, which drags down our worst-case response time.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "The first request after a quiet period is slow, which drags down our worst-case response time.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "The rash looks like hives brought on by a reaction to a medication.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "The rash looks like hives brought on by a reaction to a medication.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "The rash looks like hives brought on by a reaction to a medication.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "The rash looks like hives brought on by a reaction to a medication.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The book carries material convexity exposure under a parallel shift.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "The book carries material convexity exposure under a parallel shift.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "The book carries material convexity exposure under a parallel shift.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "The book carries material convexity exposure under a parallel shift.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "The service mesh handles mTLS and circuit breaking between pods.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "The service mesh handles mTLS and circuit breaking between pods.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "The service mesh handles mTLS and circuit breaking between pods.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "The service mesh handles mTLS and circuit breaking between pods.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "From the second year on, the acquisition adds to our per-share profit rather than watering it down.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "From the second year on, the acquisition adds to our per-share profit rather than watering it down.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "From the second year on, the acquisition adds to our per-share profit rather than watering it down.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "From the second year on, the acquisition adds to our per-share profit rather than watering it down.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "Working capital swings distorted free cash flow this quarter.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Working capital swings distorted free cash flow this quarter.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Working capital swings distorted free cash flow this quarter.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Working capital swings distorted free cash flow this quarter.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "The timing of bills paid and money collected made our cash look worse than the business actually performed.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "The timing of bills paid and money collected made our cash look worse than the business actually performed.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "The timing of bills paid and money collected made our cash look worse than the business actually performed.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "The timing of bills paid and money collected made our cash look worse than the business actually performed.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "The study was preregistered to guard against p-hacking.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "The study was preregistered to guard against p-hacking.", "label": 1, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "The study was preregistered to guard against p-hacking.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "The study was preregistered to guard against p-hacking.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Right after you save something, refreshing might not show it yet.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Right after you save something, refreshing might not show it yet.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Right after you save something, refreshing might not show it yet.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Right after you save something, refreshing might not show it yet.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We're putting the plan into practice in each part of the business.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "We're putting the plan into practice in each part of the business.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "We're putting the plan into practice in each part of the business.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "We're putting the plan into practice in each part of the business.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Investors collect their promised minimum return first; the fund managers only take a cut after that.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Investors collect their promised minimum return first; the fund managers only take a cut after that.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Investors collect their promised minimum return first; the fund managers only take a cut after that.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Investors collect their promised minimum return first; the fund managers only take a cut after that.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "A quick pre-check tells us when something is definitely not stored, so we can skip the slow search entirely.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "A quick pre-check tells us when something is definitely not stored, so we can skip the slow search entirely.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "A quick pre-check tells us when something is definitely not stored, so we can skip the slow search entirely.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "A quick pre-check tells us when something is definitely not stored, so we can skip the slow search entirely.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "Their DSO crept up to 68 days.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Their DSO crept up to 68 days.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Their DSO crept up to 68 days.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Their DSO crept up to 68 days.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "Devices with no screen or keyboard sign in by showing you a short code to type on your phone.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Devices with no screen or keyboard sign in by showing you a short code to type on your phone.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Devices with no screen or keyboard sign in by showing you a short code to type on your phone.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Devices with no screen or keyboard sign in by showing you a short code to type on your phone.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We indemnify them against third-party IP claims.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "We indemnify them against third-party IP claims.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "We indemnify them against third-party IP claims.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "We indemnify them against third-party IP claims.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "It's a single loan with few restrictions, and the borrower can pay the interest by adding it to the balance instead of in cash.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "It's a single loan with few restrictions, and the borrower can pay the interest by adding it to the balance instead of in cash.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "It's a single loan with few restrictions, and the borrower can pay the interest by adding it to the balance instead of in cash.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "It's a single loan with few restrictions, and the borrower can pay the interest by adding it to the balance instead of in cash.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "We're double-clicking on the churn cohort.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "We're double-clicking on the churn cohort.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "We're double-clicking on the churn cohort.", "label": 1, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "We're double-clicking on the churn cohort.", "label": 1, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "We split the data across several machines, so a change can take a moment to show up everywhere.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We split the data across several machines, so a change can take a moment to show up everywhere.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We split the data across several machines, so a change can take a moment to show up everywhere.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We split the data across several machines, so a change can take a moment to show up everywhere.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "Let's get a yes from the one person who owns this decision before we release it.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "Let's get a yes from the one person who owns this decision before we release it.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "Let's get a yes from the one person who owns this decision before we release it.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "Let's get a yes from the one person who owns this decision before we release it.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "Every build runs in a clean, identical environment, so the result never depends on whose laptop it was built on.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Every build runs in a clean, identical environment, so the result never depends on whose laptop it was built on.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Every build runs in a clean, identical environment, so the result never depends on whose laptop it was built on.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Every build runs in a clean, identical environment, so the result never depends on whose laptop it was built on.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We took an impairment on goodwill this quarter.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "We took an impairment on goodwill this quarter.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "We took an impairment on goodwill this quarter.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "We took an impairment on goodwill this quarter.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "We started strong antibiotics right away, before we knew exactly which bacteria was responsible.", "label": 0, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "We started strong antibiotics right away, before we knew exactly which bacteria was responsible.", "label": 0, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "We started strong antibiotics right away, before we knew exactly which bacteria was responsible.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "We started strong antibiotics right away, before we knew exactly which bacteria was responsible.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Because prices dropped, our lender demanded more cash as security, immediately.", "label": 0, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "Because prices dropped, our lender demanded more cash as security, immediately.", "label": 0, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "Because prices dropped, our lender demanded more cash as security, immediately.", "label": 0, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "Because prices dropped, our lender demanded more cash as security, immediately.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "A bloom filter short-circuits the lookup on the miss path.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "A bloom filter short-circuits the lookup on the miss path.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "A bloom filter short-circuits the lookup on the miss path.", "label": 1, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "A bloom filter short-circuits the lookup on the miss path.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "Patients presented with idiopathic dyspnea refractory to bronchodilators.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
+{"text": "Patients presented with idiopathic dyspnea refractory to bronchodilators.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "Patients presented with idiopathic dyspnea refractory to bronchodilators.", "label": 0, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "Patients presented with idiopathic dyspnea refractory to bronchodilators.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "The differences we saw could easily have come up by chance, so we can't claim a real effect.", "label": 0, "audienceLevel": 3, "domain": "general", "source": "synthetic"}
+{"text": "The differences we saw could easily have come up by chance, so we can't claim a real effect.", "label": 0, "audienceLevel": 2, "domain": "general", "source": "synthetic"}
+{"text": "The differences we saw could easily have come up by chance, so we can't claim a real effect.", "label": 0, "audienceLevel": 1, "domain": "general", "source": "synthetic"}
+{"text": "The differences we saw could easily have come up by chance, so we can't claim a real effect.", "label": 0, "audienceLevel": 0, "domain": "general", "source": "synthetic"}
+{"text": "The facility has a springing covenant tied to leverage.", "label": 1, "audienceLevel": 0, "domain": "finance", "source": "synthetic"}
+{"text": "The facility has a springing covenant tied to leverage.", "label": 1, "audienceLevel": 1, "domain": "finance", "source": "synthetic"}
+{"text": "The facility has a springing covenant tied to leverage.", "label": 1, "audienceLevel": 2, "domain": "finance", "source": "synthetic"}
+{"text": "The facility has a springing covenant tied to leverage.", "label": 0, "audienceLevel": 3, "domain": "finance", "source": "synthetic"}
+{"text": "Our CI pipeline runs hermetic builds against a pinned toolchain.", "label": 1, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "Our CI pipeline runs hermetic builds against a pinned toolchain.", "label": 1, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "Our CI pipeline runs hermetic builds against a pinned toolchain.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "Our CI pipeline runs hermetic builds against a pinned toolchain.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "We train only a small add-on layer and leave the large model untouched, which is far cheaper.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "We train only a small add-on layer and leave the large model untouched, which is far cheaper.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "We train only a small add-on layer and leave the large model untouched, which is far cheaper.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "We train only a small add-on layer and leave the large model untouched, which is far cheaper.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "When the part that processes the work falls behind, it tells the part sending the work to slow down.", "label": 0, "audienceLevel": 0, "domain": "tech", "source": "synthetic"}
+{"text": "When the part that processes the work falls behind, it tells the part sending the work to slow down.", "label": 0, "audienceLevel": 1, "domain": "tech", "source": "synthetic"}
+{"text": "When the part that processes the work falls behind, it tells the part sending the work to slow down.", "label": 0, "audienceLevel": 2, "domain": "tech", "source": "synthetic"}
+{"text": "When the part that processes the work falls behind, it tells the part sending the work to slow down.", "label": 0, "audienceLevel": 3, "domain": "tech", "source": "synthetic"}
+{"text": "Prophylaxis reduced the incidence of VTE post-arthroplasty.", "label": 0, "audienceLevel": 3, "domain": "medical", "source": "synthetic"}
+{"text": "Prophylaxis reduced the incidence of VTE post-arthroplasty.", "label": 1, "audienceLevel": 2, "domain": "medical", "source": "synthetic"}
+{"text": "Prophylaxis reduced the incidence of VTE post-arthroplasty.", "label": 1, "audienceLevel": 1, "domain": "medical", "source": "synthetic"}
+{"text": "Prophylaxis reduced the incidence of VTE post-arthroplasty.", "label": 1, "audienceLevel": 0, "domain": "medical", "source": "synthetic"}
