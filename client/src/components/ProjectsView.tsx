@@ -48,7 +48,8 @@ export const ProjectsView = ({ projects, selectedProjectId, onSelectProject, onC
                             <th className="px-6 py-4">Name</th>
                             <th className="px-6 py-4">Date</th>
                             <th className="px-6 py-4">Time</th>
-                            <th className="px-6 py-4 w-10"></th> {/* Spacer for Edit button */}
+                            {/* Spacer for Edit button */}
+                            <th className="px-6 py-4 w-10"></th>
                             <th className="px-6 py-4 text-right">Action</th>
                         </tr>
                     </thead>

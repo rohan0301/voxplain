@@ -234,7 +234,7 @@ function App() {
       await persistRecording(file, result);
     } catch (err) {
       console.error(err);
-      setError('Failed to process audio. Please ensure server is running.');
+      setError(err instanceof Error ? err.message : 'Failed to process audio.');
     } finally {
       setIsProcessing(false);
     }
@@ -256,7 +256,7 @@ function App() {
       await persistRecording(file, transcription);
     } catch (err) {
       console.error(err);
-      setError("Failed to process recording.");
+      setError(err instanceof Error ? err.message : 'Failed to process recording.');
     } finally {
       setIsProcessing(false);
     }
