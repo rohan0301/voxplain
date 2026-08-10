@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "nodemon --exec \"node --loader ts-node/esm\" src/index.ts",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc"
   },
   "keywords": [],
@@ -33,6 +33,7 @@
     "@types/node": "^25.0.9",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
+    "tsx": "^4.23.12",
     "typescript": "^5.9.3"
   }
 }

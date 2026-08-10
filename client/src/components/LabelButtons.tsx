@@ -62,7 +62,7 @@ export const LabelButtons: React.FC<LabelButtonsProps> = ({
         } catch (err) {
             console.error('[Label] save failed', err);
             setLabel(previous);
-            setError('Could not save');
+            setError(err instanceof Error ? err.message : 'Could not save');
         }
     };
 
