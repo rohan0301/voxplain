@@ -247,8 +247,25 @@ export async function transcribeAudio(file: File): Promise<TranscriptionResult> 
     });
 
     if (!response.ok) {
-        const errText = await response.text().catch(() => '');
-        throw new Error(`Transcription failed (${response.status}): ${errText || response.statusText}`);
+        // Surface something the user can act on. The generic fallback used to
+        // hide rate limits and server errors behind one message.
+        const body = await response.json().catch(() => null) as { error?: string } | null;
+
+        if (response.status === 429) {
+            throw new Error(
+                body?.error
+                || 'Too many transcriptions in the last hour. Please try again later.'
+            );
+        }
+        if (response.status === 413) {
+            throw new Error('That file is too large. The limit is 25MB.');
+        }
+        if (response.status >= 500) {
+            throw new Error(
+                'The transcription service failed. If the server was asleep, waiting a moment and retrying usually works.'
+            );
+        }
+        throw new Error(body?.error || `Transcription failed (${response.status}).`);
     }
 
     return response.json();
@@ -419,7 +436,6 @@ export interface LabelPayload {
 }
 
 export async function saveLabel(payload: LabelPayload): Promise<void> {
-    console.log('[API] Saving label payload:', payload);
     const headers = await authHeaders();
 
     const response = await fetch(apiUrl('/labels'), {
@@ -429,13 +445,18 @@ export async function saveLabel(payload: LabelPayload): Promise<void> {
     });
 
     if (!response.ok) {
-        const errText = await response.text();
-        console.error('[API] Save label failed:', errText);
-        throw new Error(`Failed to save label: ${errText}`);
-    }
+        const body = await response.json().catch(() => null) as { error?: string } | null;
+        console.error('[API] Save label failed:', response.status, body);
 
-    const resJson = await response.json();
-    console.log('[API] Save label success:', resJson);
+        if (response.status === 429) {
+            throw new Error('Too many labels for now');
+        }
+        if (response.status === 503) {
+            // Almost always local dev with no Supabase credentials.
+            throw new Error('Label storage unavailable');
+        }
+        throw new Error(body?.error || `Could not save (${response.status})`);
+    }
 }
 
 export interface MetricsRequest {
