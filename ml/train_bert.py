@@ -1,7 +1,9 @@
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+import torch
 from datasets import Dataset
 from transformers import (
     AutoTokenizer,
@@ -76,6 +78,41 @@ def build_dataset(rows):
     return Dataset.from_dict({"text": inputs, "labels": labels})
 
 
+class WeightedTrainer(Trainer):
+    """Trainer with class-weighted loss.
+
+    The label distribution is roughly 73/27 in favour of "clear", so an
+    unweighted model can score ~73% accuracy by never predicting "confusing" —
+    which is precisely the prediction the product needs it to make. Weights are
+    inverse-frequency, computed from the training split at run time so they
+    track the data instead of a constant that goes stale.
+    """
+
+    def __init__(self, *args, class_weights=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.class_weights = class_weights
+
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+        labels = inputs.pop("labels")
+        outputs = model(**inputs)
+        weight = None
+        if self.class_weights is not None:
+            weight = self.class_weights.to(outputs.logits.device)
+        loss = torch.nn.functional.cross_entropy(
+            outputs.logits, labels, weight=weight
+        )
+        return (loss, outputs) if return_outputs else loss
+
+
+def inverse_frequency_weights(labels):
+    """weight[c] = n / (num_classes * count[c]); mean weight is 1."""
+    counts = np.bincount(labels, minlength=2).astype(np.float64)
+    if (counts == 0).any():
+        return None
+    weights = len(labels) / (2.0 * counts)
+    return torch.tensor(weights, dtype=torch.float)
+
+
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
     preds = np.argmax(logits, axis=-1)
@@ -116,20 +153,23 @@ def main():
     if test_ds is not None:
         test_ds.set_format(type="torch", columns=["input_ids", "attention_mask", "labels"])
 
-    # With tiny data, keep it small and just prove the pipeline.
-    # Expect overfitting and noisy metrics.
     eval_strategy = "epoch" if val_ds is not None else "no"
     save_strategy = "epoch" if val_ds is not None else "no"
 
+    # Tuned for the ~600-row dataset. Six epochs on this much data overfits
+    # hard; three is enough to converge without memorizing the training split.
     args = TrainingArguments(
         output_dir=str(OUT_DIR),
         learning_rate=2e-5,
-        per_device_train_batch_size=4,
-        per_device_eval_batch_size=8,
-        num_train_epochs=6,
+        per_device_train_batch_size=16,
+        per_device_eval_batch_size=32,
+        num_train_epochs=3,
         weight_decay=0.01,
         eval_strategy=eval_strategy,
         save_strategy=save_strategy,
+        # Each checkpoint is ~770MB; without a cap a 3-epoch run leaves 2.3GB
+        # of intermediate state behind next to a 268MB model.
+        save_total_limit=1,
         load_best_model_at_end=True if val_ds is not None else False,
         metric_for_best_model="f1",
         greater_is_better=True,
@@ -137,13 +177,18 @@ def main():
         report_to="none",
     )
 
-    trainer = Trainer(
+    class_weights = inverse_frequency_weights(np.asarray(list(train_ds["labels"])))
+    if class_weights is not None:
+        print(f"Class weights (0/1): {class_weights.tolist()}")
+
+    trainer = WeightedTrainer(
         model=model,
         args=args,
         train_dataset=train_ds,
         eval_dataset=val_ds,
         processing_class=tokenizer,
         compute_metrics=compute_metrics,
+        class_weights=class_weights,
     )
 
     print("\nTraining…")
@@ -152,6 +197,15 @@ def main():
     print("\nSaving model…")
     trainer.save_model(str(OUT_DIR))
     tokenizer.save_pretrained(str(OUT_DIR))
+
+    # Every score the product shows must be traceable to the model that made
+    # it. Phase 2 reads this back and returns it on the analysis response.
+    version = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    (OUT_DIR / "version.txt").write_text(
+        f"{version}\ntrain_rows={len(train_ds)}\nbase={MODEL_NAME}\n",
+        encoding="utf-8",
+    )
+    print(f"Model version: {version}")
 
     if test_ds is not None:
         print("\nEvaluating on test set…")
