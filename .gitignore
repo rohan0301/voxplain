@@ -20,3 +20,6 @@ ml/.venv
 ml/__pycache__
 ml/**/__pycache__
 ml/model_distilbert
+
+# Internal planning docs — keep local, not on GitHub
+AUDIENCE_ENGINE_PLAN.md
