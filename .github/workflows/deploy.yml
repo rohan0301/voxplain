@@ -24,11 +24,13 @@ jobs:
             --instance-ids "i-082f408731d904600" \
             --document-name "AWS-RunShellScript" \
             --parameters commands='[
+              "set -e",
               "cd /home/ubuntu/voxplain",
+              "git config --global --add safe.directory /home/ubuntu/voxplain",
               "git pull origin main",
               "cd client && npm install && npm run build",
               "cd ../server && npm install && npm run build && sudo systemctl restart voxplain-server",
-              "cd ../ml && source venv/bin/activate && pip install -r requirements.txt && sudo systemctl restart voxplain-ml"
+              "cd ../ml && . venv/bin/activate && pip install -r requirements.txt && sudo systemctl restart voxplain-ml"
             ]' \
             --query "Command.CommandId" --output text)
 
