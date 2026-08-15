@@ -25,6 +25,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --parameters commands='[
               "set -e",
+              "export HOME=/root",
               "cd /home/ubuntu/voxplain",
               "git config --global --add safe.directory /home/ubuntu/voxplain",
               "git pull origin main",
