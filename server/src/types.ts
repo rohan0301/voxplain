@@ -48,6 +48,14 @@ export interface TechnicalityHotspot {
   terms: string[];
   reasons: string[];
   suggestions: string[];
+  /**
+   * Concrete term -> plain-language swaps for this sentence, chosen for the
+   * audience level (Fix #5 Stage A). Empty when none of the terms have an
+   * entry in shared/jargon/plain.json. The same swaps also appear, formatted,
+   * at the front of `suggestions`, so existing renderers show them without
+   * changes.
+   */
+  replacements?: Array<{ term: string; plain: string }>;
   localWPM?: number;
 }
 

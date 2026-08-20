@@ -13,6 +13,8 @@ interface WritingStudioPageProps {
     domain?: string;
     projectId?: string | null;
     projectName?: string;
+    /** Opens the audience picker when no level has been chosen. */
+    onSetAudience?: () => void;
 }
 
 interface SavedSpeech {
@@ -55,12 +57,13 @@ export const WritingStudioPage: React.FC<WritingStudioPageProps> = ({
     onSwitchToPrompter,
     script,
     setScript,
-    audienceLevel = 1,
+    audienceLevel,
     domain = 'general',
     projectId = null,
-    projectName = 'Untitled Project'
+    projectName = 'Untitled Project',
+    onSetAudience
 }) => {
-    const { analysis, isAnalyzing, analyzeText, error } = useTextAnalysis();
+    const { analysis, isAnalyzing, analyzeText, error, provenance } = useTextAnalysis();
     const [savedSpeeches, setSavedSpeeches] = useState<SavedSpeech[]>([]);
     const [isLoadingSpeeches, setIsLoadingSpeeches] = useState(false);
     const [isSavingSpeech, setIsSavingSpeech] = useState(false);
@@ -149,9 +152,19 @@ export const WritingStudioPage: React.FC<WritingStudioPageProps> = ({
                     <p className="text-slate-500 mt-1">Draft, analyze, and refine your speech before recording.</p>
                 </div>
                 <div className="text-right">
-                    <span className="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-500/10">
-                        {['Novice', 'Familiar', 'Strong', 'Expert'][audienceLevel]} Audience
-                    </span>
+                    {audienceLevel === undefined ? (
+                        <button
+                            type="button"
+                            onClick={onSetAudience}
+                            className="inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-500/20 hover:bg-amber-100"
+                        >
+                            Audience not set
+                        </button>
+                    ) : (
+                        <span className="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-500/10">
+                            {['Novice', 'Familiar', 'Strong', 'Expert'][audienceLevel]} Audience
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -180,6 +193,8 @@ export const WritingStudioPage: React.FC<WritingStudioPageProps> = ({
                         projectId={projectId}
                         audienceLevel={audienceLevel}
                         domain={domain}
+                        provenance={provenance}
+                        onSetAudience={onSetAudience}
                     />
                 </div>
             </div>

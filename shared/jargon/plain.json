@@ -1,0 +1,297 @@
+{
+  "version": "2026-08-19",
+  "note": "Plain-language equivalents for jargon, per audience level. Fix #5 Stage A: hotspots offer a concrete replacement instead of 'Add an explanation or easier synonym'.",
+  "levels": {
+    "0": "No technical background. Replace the term entirely.",
+    "1": "General professional. Name the term but define it inline.",
+    "2": "Technically strong. Keep the term; only expand if it is niche."
+  },
+  "coverage_note": "Selected by frequency in the labelled corpus (ml/data/labels.jsonl) rather than by what was interesting to write, per the plan. Terms with no entry simply get no substitution — the generic advice remains as the fallback.",
+  "terms": {
+    "rag": {
+      "aliases": ["retrieval augmented generation", "retrieval-augmented generation"],
+      "plain": {
+        "0": "the system looks things up in our documents before answering",
+        "1": "retrieval — it searches our docs, then answers using what it finds",
+        "2": "retrieval-augmented generation"
+      }
+    },
+    "lora": {
+      "aliases": ["low-rank adaptation"],
+      "plain": {
+        "0": "a cheap way to teach the model a new skill without retraining it",
+        "1": "LoRA — a lightweight fine-tuning method that trains a small add-on instead of the whole model"
+      }
+    },
+    "fine-tuning": {
+      "aliases": ["finetuning", "fine tuning"],
+      "plain": {
+        "0": "training the model further on our own examples",
+        "1": "fine-tuning — continuing training on task-specific data"
+      }
+    },
+    "inference": {
+      "plain": {
+        "0": "the model actually answering a question",
+        "1": "inference — running the model to get a prediction"
+      }
+    },
+    "embedding": {
+      "aliases": ["embeddings"],
+      "plain": {
+        "0": "turning text into numbers so the computer can compare meaning",
+        "1": "embeddings — numeric representations that put similar text close together"
+      }
+    },
+    "latency": {
+      "plain": {
+        "0": "how long it takes to respond",
+        "1": "latency — response time"
+      }
+    },
+    "throughput": {
+      "plain": {
+        "0": "how much it can handle at once",
+        "1": "throughput — volume handled per unit time"
+      }
+    },
+    "serverless": {
+      "plain": {
+        "0": "we don't manage any servers ourselves",
+        "1": "serverless — the provider runs and scales the machines for us"
+      }
+    },
+    "api": {
+      "aliases": ["apis"],
+      "plain": {
+        "0": "the way two systems talk to each other",
+        "1": "an API — a defined interface between two systems"
+      }
+    },
+    "oauth": {
+      "plain": {
+        "0": "the \"sign in with Google\" flow",
+        "1": "OAuth — delegated sign-in without sharing a password"
+      }
+    },
+    "int8": {
+      "aliases": ["quantization", "quantisation"],
+      "plain": {
+        "0": "shrinking the model so it runs on cheaper hardware",
+        "1": "quantization — storing the model at lower precision to cut cost"
+      }
+    },
+    "encoder": {
+      "plain": {
+        "0": "the part that reads the input",
+        "1": "the encoder — the half that turns input into an internal representation"
+      }
+    },
+    "pipeline": {
+      "plain": {
+        "0": "the series of steps the data goes through",
+        "1": "the pipeline — the sequence of processing stages"
+      }
+    },
+    "ebitda": {
+      "plain": {
+        "0": "profit before interest, tax, and accounting write-offs",
+        "1": "EBITDA — earnings before interest, tax, depreciation and amortisation"
+      }
+    },
+    "basis points": {
+      "aliases": ["bps", "basis point"],
+      "plain": {
+        "0": "hundredths of a percent — 50 basis points is half a percent",
+        "1": "basis points — one hundredth of a percentage point each"
+      }
+    },
+    "free cash flow": {
+      "plain": {
+        "0": "the cash left over after running and investing in the business",
+        "1": "free cash flow — operating cash flow minus capital expenditure"
+      }
+    },
+    "working capital": {
+      "plain": {
+        "0": "the cash tied up in day-to-day operations",
+        "1": "working capital — current assets minus current liabilities"
+      }
+    },
+    "leverage": {
+      "plain": {
+        "0": "how much of this is funded by borrowing",
+        "1": "leverage — the ratio of debt to equity"
+      }
+    },
+    "covenant": {
+      "aliases": ["covenants"],
+      "plain": {
+        "0": "a condition the lender puts in the loan agreement",
+        "1": "a covenant — a contractual condition attached to the debt"
+      }
+    },
+    "goodwill": {
+      "plain": {
+        "0": "the premium paid above what the assets are worth on paper",
+        "1": "goodwill — the excess of purchase price over net asset value"
+      }
+    },
+    "impairment": {
+      "plain": {
+        "0": "writing down something we now think is worth less",
+        "1": "an impairment — a write-down of carrying value"
+      }
+    },
+    "convexity": {
+      "plain": {
+        "0": "how sharply the price reacts as rates move",
+        "1": "convexity — the curvature of the price/yield relationship"
+      }
+    },
+    "waterfall": {
+      "plain": {
+        "0": "the order in which people get paid out",
+        "1": "the distribution waterfall — the payout priority order"
+      }
+    },
+    "carry": {
+      "aliases": ["carried interest"],
+      "plain": {
+        "0": "the share of profits the managers keep",
+        "1": "carried interest — the managers' share of the profits"
+      }
+    },
+    "margin call": {
+      "plain": {
+        "0": "a demand to put up more cash to cover losses",
+        "1": "a margin call — a demand for additional collateral"
+      }
+    },
+    "eps": {
+      "plain": {
+        "0": "profit per share",
+        "1": "EPS — earnings per share"
+      }
+    },
+    "hurdle rate": {
+      "plain": {
+        "0": "the minimum return before the managers share in profits",
+        "1": "the hurdle rate — the minimum return before carry accrues"
+      }
+    },
+    "liquidation preference": {
+      "plain": {
+        "0": "who gets paid first, and how much, if the company sells",
+        "1": "liquidation preference — payout priority on an exit"
+      }
+    },
+    "dyspnea": {
+      "aliases": ["dyspnoea"],
+      "plain": {
+        "0": "shortness of breath",
+        "1": "dyspnea — shortness of breath"
+      }
+    },
+    "tachycardia": {
+      "plain": {
+        "0": "a fast heart rate",
+        "1": "tachycardia — an abnormally fast heart rate"
+      }
+    },
+    "idiopathic": {
+      "plain": {
+        "0": "with no known cause",
+        "1": "idiopathic — arising from an unknown cause"
+      }
+    },
+    "refractory": {
+      "plain": {
+        "0": "not responding to treatment",
+        "1": "refractory — not responding to standard treatment"
+      }
+    },
+    "nosocomial": {
+      "plain": {
+        "0": "picked up in hospital",
+        "1": "nosocomial — hospital-acquired"
+      }
+    },
+    "prophylaxis": {
+      "aliases": ["prophylactic"],
+      "plain": {
+        "0": "treatment given to prevent illness rather than treat it",
+        "1": "prophylaxis — preventive treatment"
+      }
+    },
+    "ischemia": {
+      "aliases": ["ischaemia"],
+      "plain": {
+        "0": "not enough blood reaching the tissue",
+        "1": "ischemia — restricted blood supply"
+      }
+    },
+    "stenosis": {
+      "plain": {
+        "0": "a narrowing",
+        "1": "stenosis — abnormal narrowing of a vessel or passage"
+      }
+    },
+    "thrombosis": {
+      "plain": {
+        "0": "a blood clot",
+        "1": "thrombosis — clot formation inside a vessel"
+      }
+    },
+    "lesion": {
+      "aliases": ["lesions"],
+      "plain": {
+        "0": "an area of damaged tissue",
+        "1": "a lesion — an area of abnormal tissue"
+      }
+    },
+    "nephropathy": {
+      "plain": {
+        "0": "kidney damage",
+        "1": "nephropathy — kidney disease"
+      }
+    },
+    "syncope": {
+      "plain": {
+        "0": "fainting",
+        "1": "syncope — transient loss of consciousness"
+      }
+    },
+    "hazard ratio": {
+      "plain": {
+        "0": "how much sooner the problem tends to happen in one group than the other",
+        "1": "hazard ratio — the relative rate of an event between two groups"
+      }
+    },
+    "incidence": {
+      "plain": {
+        "0": "how many new cases appear",
+        "1": "incidence — the rate of new cases over a period"
+      }
+    },
+    "comorbidity": {
+      "aliases": ["comorbidities"],
+      "plain": {
+        "0": "another condition the patient also has",
+        "1": "comorbidity — a co-occurring condition"
+      }
+    },
+    "ultrasound": {
+      "plain": {
+        "0": "a scan that uses sound waves",
+        "1": "ultrasound imaging"
+      }
+    },
+    "serum": {
+      "plain": {
+        "0": "the liquid part of blood",
+        "1": "serum — the fluid fraction of blood"
+      }
+    }
+  }
+}

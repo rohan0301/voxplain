@@ -21,6 +21,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .inference import model_service, LOAD_BERT_MODEL
 from .metrics import analyze_technicality
+from .audience_profile import infer_profile
 from .models import (
     PredictRequest,
     PredictResponse,
@@ -29,6 +30,8 @@ from .models import (
     HealthResponse,
     MetricsRequest,
     MetricsResponse,
+    AudienceProfileRequest,
+    AudienceProfileResponse,
 )
 
 
@@ -89,6 +92,7 @@ def health():
     return HealthResponse(
         status="ok",
         model_loaded=model_service.is_loaded if LOAD_BERT_MODEL else False,
+        model_enabled=LOAD_BERT_MODEL,
     )
 
 
@@ -154,3 +158,19 @@ def analyze_metrics(req: MetricsRequest):
         domain=req.domain,
     )
     return MetricsResponse(**result)
+
+
+@app.post("/analyze/audience", response_model=AudienceProfileResponse)
+def analyze_audience(req: AudienceProfileRequest):
+    """
+    Turn a free-text audience description into a level and a domain.
+
+    "board of directors, non-technical, finance background" becomes
+    level 0 in the finance domain. Rule-based and cheap; see
+    audience_profile.py for why it is not a model yet.
+
+    Nulls mean "no signal", never "assume 1" — the caller decides what to do
+    with an unknown, and the UI shows the user what was inferred so they can
+    override it.
+    """
+    return AudienceProfileResponse(**infer_profile(req.description))

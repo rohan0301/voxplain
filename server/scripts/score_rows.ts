@@ -25,6 +25,9 @@ for (const line of readFileSync(path, 'utf8').split('\n')) {
     const result = analyzeTechnicality({
         transcriptText: row.text,
         audienceLevel: level,
+        // Domain matters here since Fix #2; scoring without it would measure
+        // a pipeline the product no longer runs.
+        domain: row.domain ?? 'general',
     });
     process.stdout.write(JSON.stringify({
         text: row.text,

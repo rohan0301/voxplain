@@ -10,7 +10,17 @@ export interface Project {
     presentationType?: string;
     speechText?: string;
     audienceLevel?: AudienceLevel;
-    domain?: "general" | "tech" | "finance" | "healthcare" | "other";
+    domain?: ProjectDomain;
 }
 
 export type AudienceLevel = 0 | 1 | 2 | 3;
+
+/**
+ * The domain vocabulary the product offers. Named so the audience-inference
+ * code can narrow to it instead of passing bare strings around.
+ *
+ * Note "healthcare", not "medical": ml/app/metrics.py keys its jargon list on
+ * "medical" but aliases "healthcare" to the same list, so both work on the
+ * wire. This is the spelling the UI uses.
+ */
+export type ProjectDomain = "general" | "tech" | "finance" | "healthcare" | "other";

@@ -1,8 +1,15 @@
 import type { TechnicalityResult, TechnicalityHotspot, AudienceLevel } from '../types.js';
+import { termsForDomain, substitutionsFor } from './jargon.js';
 
 interface AnalyzeInput {
     transcriptText: string;
     audienceLevel?: AudienceLevel;
+    /**
+     * Selects the jargon vocabulary. Omitted or 'general'/'other' means every
+     * domain's terms at once. Before Fix #2 this parameter did not exist and
+     * the seed glossary was always the tech list.
+     */
+    domain?: string;
 
     /**
      * Accepted and ignored. Callers already send both, and they are what a
@@ -18,17 +25,21 @@ interface AnalyzeInput {
  * SCORING — the constants that decide what gets flagged.
  *
  * Measured 2026-08-19 on 607 labelled rows (ml/tune_cv.py, 5-fold CV,
- * out-of-fold). What ships below scores accuracy 0.799, precision 0.847,
- * recall 0.355, F1 0.500 once blended with /analyze/metrics in
+ * out-of-fold). With the domain-aware glossary (Fix #2) and the ambiguous
+ * terms removed, what ships below scores accuracy 0.845, precision 0.933,
+ * recall 0.488, F1 0.641 once blended with /analyze/metrics in
  * server/src/index.ts.
  *
- * Read that as: when it flags a sentence it is right ~85% of the time, and it
- * stays quiet about roughly two thirds of the sentences a human called
- * confusing. Refitting the ladder to maximise F1 raises recall to 0.733 but
- * drops accuracy to 0.656 and precision to 0.436 — a trade, not an
- * improvement, and McNemar puts the extra total errors well outside noise
- * (p < 1e-6). The ladder was therefore left where it is; see
- * ml/tune_operating_points.py for the alternatives and their real numbers.
+ * Read that as: when it flags a sentence it is right ~93% of the time, and it
+ * still stays quiet about half the sentences a human called confusing.
+ *
+ * For reference, before Fix #2 the same measurement gave accuracy 0.799,
+ * precision 0.847, recall 0.355, F1 0.500 — the domain vocabularies bought
+ * more than any threshold change ever did.
+ *
+ * Refitting the ladder was measured twice, before and after Fix #2, and does
+ * not beat it either time; see ml/THRESHOLD_RETUNE_FINDINGS.md and
+ * ml/tune_operating_points.py.
  *
  * Before changing any number here, re-run ml/tune_cv.py. These are not
  * arbitrary any more, and the obvious "improvements" have been tried.
@@ -41,6 +52,12 @@ const SCORING = {
     explainedDiscount: 0.3,    // max reduction when every term is explained
     statusBand: 15,            // +/- around the threshold that counts as "near"
 } as const;
+
+/**
+ * Exported because index.ts re-derives status after blending in the metrics
+ * signal, and the two must agree. One definition, two readers.
+ */
+export const STATUS_BAND = SCORING.statusBand;
 
 /**
  * Score above which content is "above" the audience, per audience level.
@@ -63,91 +80,13 @@ const AUDIENCE_THRESHOLDS: Record<number, number> = {
 /** Used when audienceLevel is absent or out of range — same as level 1. */
 const DEFAULT_THRESHOLD = 40;
 
-const COMMON_TECHNICAL_TERMS = new Set([
-    // AI/ML Core
-    'transformer', 'attention', 'softmax', 'embedding', 'embeddings', 'neural', 'network', 'deep learning',
-    'machine learning', 'llm', 'llms', 'gpt', 'bert', 'claude', 'llama', 'mistral', 'falcon',
-    'model', 'training', 'inference', 'fine-tuning', 'finetuning', 'pretraining', 'pretraining',
-    'backpropagation', 'gradient', 'optimizer', 'sgd', 'adam', 'loss', 'activation',
-
-    // Modern AI/ML Techniques
-    'attention bottleneck', 'linear attention', 'ssm', 'mamba', 'hybrids', 'scaling laws',
-    'induction head', 'in-context learning', 'prompt engineering', 'chain of thought',
-    'rag', 'retrieval augmented', 'lora', 'qlora', 'adapter', 'prompt tuning', 'prefix tuning',
-    'instruction tuning', 'alignment', 'rlhf', 'dpo', 'ppo', 'supervised fine-tuning',
-    'constitutional ai', 'mechanistic interpretability', 'interpretability', 'sae', 'sparse autoencoders',
-    'residual stream', 'monosemantic', 'polysemantic', 'feature', 'circuit', 'manifold hypothesis',
-    'sample efficiency', 'scaling', 'capability distribution', 'emergent abilities', 'emergence',
-    'ablation', 'probe', 'steering', 'adversarial', 'jailbreak', 'robustness', 'fairness',
-    'bias', 'toxicity', 'harmlessness', 'safety', 'evaluation metrics', 'benchmark',
-
-    // Data & Training
-    'dataset', 'corpus', 'tokenization', 'token', 'tokens', 'vocabulary', 'vocab', 'sequence length',
-    'context window', 'batch size', 'learning rate', 'weight decay', 'dropout', 'regularization',
-    'data augmentation', 'cross-entropy', 'perplexity', 'accuracy', 'f1', 'precision', 'recall',
-    'roc', 'auc', 'confusion matrix', 'overfitting', 'underfitting', 'generalization',
-
-    // Architecture & Layers
-    'convolution', 'convolutional', 'cnn', 'rnn', 'lstm', 'gru', 'gated', 'recurrent',
-    'encoder', 'decoder', 'seq2seq', 'autoencoder', 'vae', 'gan', 'diffusion',
-    'normalization', 'batch norm', 'layer norm', 'instance norm', 'group norm',
-    'skip connection', 'residual', 'bottleneck', 'pooling', 'upsampling', 'downsampling',
-
-    // Vision/NLP Specific
-    'vision transformer', 'vit', 'mha', 'multi-head attention', 'self-attention', 'cross-attention',
-    'nlp', 'natural language processing', 'nlg', 'nlu', 'sentiment analysis', 'named entity',
-    'pos tagging', 'parsing', 'machine translation', 'text generation', 'summarization',
-    'question answering', 'qa', 'semantic similarity', 'paraphrase', 'entailment',
-    'computer vision', 'object detection', 'segmentation', 'classification', 'regression',
-
-    // Optimization & Inference
-    'quantization', 'pruning', 'distillation', 'knowledge distillation', 'compression',
-    'sparsity', 'sparse', 'mixture of experts', 'moe', 'routing', 'load balancing',
-    'batching', 'pipeline parallelism', 'data parallelism', 'model parallelism', 'distributed',
-    'gradient accumulation', 'mixed precision', 'float16', 'int8', 'bfloat16',
-    'inference optimization', 'kv cache', 'flash attention', 'paging', 'vllm',
-
-    // Evaluation & Analysis
-    'metric', 'bleu', 'rouge', 'meteor', 'cer', 'wer', 'human evaluation', 'annotation',
-    'crowdsourcing', 'inter-rater', 'agreement', 'kappa', 'correlation', 'statistical significance',
-    'confidence interval', 'p-value', 'hypothesis testing', 'ablation study', 'sensitivity analysis',
-    'error analysis', 'qualitative analysis', 'case study', 'visualization', 'attention heatmap',
-
-    // Infrastructure
-    'kubernetes', 'docker', 'redis', 'postgres', 'postgresql', 'prometheus', 'grafana',
-    'opentelemetry', 'api', 'apis', 'cpu', 'gpu', 'tpu', 's3', 'ec2', 'k8s', 'ci/cd',
-    'pipeline', 'algorithm', 'heuristic', 'latency', 'throughput', 'bandwidth', 'json',
-    'xml', 'yaml', 'html', 'css', 'javascript', 'typescript', 'python', 'rust', 'go',
-    'java', 'c++', 'sql', 'nosql', 'kafka', 'grpc', 'rest', 'graphql', 'jwt', 'oauth',
-    'sso', 'mfa', 'dns', 'ip', 'tcp', 'udp', 'http', 'https', 'ssl', 'tls', 'ssh',
-    'vpc', 'subnet', 'firewall', 'router', 'switch', 'load balancer', 'proxy', 'cdn',
-    'daas', 'saas', 'paas', 'iaas', 'serverless', 'microservice', 'monolith', 'container',
-    'orchestration', 'virtualization', 'hypervisor', 'kernel', 'shell', 'bash', 'zsh',
-    'terminal', 'cli', 'gui', 'ide', 'sdk', 'lib', 'library', 'framework', 'runtime',
-    'compiler', 'interpreter', 'debugger', 'linter', 'formatter', 'bundler', 'minifier',
-    'transpiler', 'tree-shaking', 'code-splitting', 'lazy-loading', 'hydration', 'ssr',
-    'csr', 'ssg', 'isr', 'spa', 'mpa', 'pwa', 'dom', 'bom', 'cssom', 'ajax', 'xhr',
-    'fetch', 'axios', 'jquery', 'react', 'vue', 'angular', 'svelte', 'solid', 'qwik',
-    'next.js', 'nuxt', 'remix', 'astro', 'gatsby', 'vite', 'webpack', 'rollup', 'parcel',
-    'esbuild', 'babel', 'tsc', 'jest', 'mocha', 'chai', 'jasmine', 'cypress', 'playwright',
-    'puppeteer', 'selenium', 'vitest', 'testing library', 'storybook', 'figma', 'sketch',
-    'adobe xd', 'zeplin', 'invision', 'framer', 'principle', 'proto.io', 'webflow',
-    'wordpress', 'shopify', 'magento', 'woocommerce', 'bigcommerce', 'squarespace', 'wix',
-    'weebly', 'ghost', 'drupal', 'joomla', 'moodle', 'lms', 'cms', 'erp', 'crm', 'hrm',
-    'scm', 'bi', 'dw', 'etl', 'elt', 'olap', 'oltp', 'db', 'dbms', 'rdbms', 'acid',
-    'cap', 'base', 'crud', 'orm', 'odm', 'dao', 'dto', 'pojos', 'javabean', 'singleton',
-    'factory', 'builder', 'prototype', 'adapter', 'bridge', 'composite', 'decorator',
-    'facade', 'flyweight', 'proxy', 'chain of responsibility', 'command', 'interpreter',
-    'iterator', 'mediator', 'memento', 'observer', 'state', 'strategy', 'template method',
-    'visitor', 'mvc', 'mvp', 'mvvm', 'flux', 'redux', 'mobx', 'zustand', 'recoil', 'jotai',
-    'xstate', 'rxjs', 'saga', 'thunk', 'promise', 'async', 'await', 'callback', 'closure',
-    'hoisting', 'scope', 'context', 'this', 'prototype', 'constructor', 'class', 'interface',
-    'type', 'enum', 'generic', 'mixin', 'decorator', 'module', 'namespace', 'package',
-    'import', 'export', 'require', 'commonjs', 'amd', 'umd', 'esm', 'systemjs', 'iife'
-]);
 
 export function analyzeTechnicality(input: AnalyzeInput): TechnicalityResult {
-    const { transcriptText, audienceLevel = 1 } = input;
+    const { transcriptText, audienceLevel = 1, domain } = input;
+
+    // Per call, not module level: two projects in one process can target
+    // different domains.
+    const glossary = termsForDomain(domain);
 
     // --- A. Segmentation ---
     // Improved segmentation: handle abbreviations (e.g., e.g., i.e.) roughly, but split mainly by .!?
@@ -166,7 +105,7 @@ export function analyzeTechnicality(input: AnalyzeInput): TechnicalityResult {
         if (clean.length < 2) return false;
 
         // 1. Check Seed Glossary (case-insensitive)
-        if (COMMON_TECHNICAL_TERMS.has(clean)) return true;
+        if (glossary.has(clean)) return true;
 
         // 2. ALL CAPS acronyms (length >= 2) -> API, LLM, ANN, etc.
         // Must be originally upper case, and contain no lowercase letters
@@ -297,11 +236,22 @@ export function analyzeTechnicality(input: AnalyzeInput): TechnicalityResult {
         }
 
         if (reasons.length > 0) {
+            // Fix #5 Stage A: where we know a plain-language equivalent, say
+            // what to use instead. A concrete replacement beats "add an
+            // explanation" — that was advice, not a fix. Generic suggestions
+            // stay as the fallback for terms with no entry.
+            const replacements = substitutionsFor(s.cleanTerms, audienceLevel);
+            const concrete = replacements.map(
+                r => `Replace "${r.term}" with "${r.plain}"`
+            );
+
             hotspots.push({
                 sentence: s.sent.trim(),
                 terms: s.cleanTerms,
                 reasons: [...new Set(reasons)], // dedup
-                suggestions: [...new Set(suggestions)]
+                // Concrete first: it is the one worth reading.
+                suggestions: [...new Set([...concrete, ...suggestions])],
+                replacements
             });
         }
     });

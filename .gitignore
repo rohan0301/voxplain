@@ -24,6 +24,7 @@ ml/model_distilbert
 # Derived: regenerate with server/scripts/score_rows.ts (see
 # ml/THRESHOLD_RETUNE_FINDINGS.md). Cheap to rebuild, noisy in diffs.
 ml/data/node_scores/
+ml/data/node_scores_pruned/
 
 # Internal docs — keep local, not on GitHub. This repo is public.
 # README.md and QUICKSTART.md are the exceptions and stay tracked.

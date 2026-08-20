@@ -11,91 +11,74 @@ Measures:
 All metrics run on CPU with no ML overhead.
 """
 
+import json
+import os
 import re
 from collections import defaultdict
-from typing import List, Dict, Tuple, Optional
+from pathlib import Path
+from typing import List, Dict, Set, Tuple, Optional
 
 
 # ── Domain-Specific Term Lists ──────────────────────────────────
 
 
-TECH_JARGON = {
-    # AI/ML Core
-    "transformer", "attention", "softmax", "embedding", "neural", "network", "deep learning",
-    "machine learning", "llm", "gpt", "bert", "claude", "training", "inference",
-    "fine-tuning", "pretraining", "backpropagation", "gradient", "optimizer", "loss",
-    "activation", "tensor", "model", "parameter",
+# The vocabularies live in shared/jargon/*.json because BOTH halves of the
+# blended score need them: this file and server/src/services/technicality.ts.
+# They used to be two unrelated hardcoded lists, so a cardiology talk got half
+# its score from a tech vocabulary of `react` and `kubernetes` (plan Fix #2).
+# Edit the JSON, not this file, and both services pick the change up.
 
-    # Modern AI/ML
-    "attention bottleneck", "linear attention", "ssm", "hybrid", "scaling law",
-    "induction head", "in-context learning", "prompt engineering", "chain of thought",
-    "rag", "lora", "adapter", "instruction tuning", "alignment", "rlhf", "dpo",
-    "ppo", "constitutional ai", "mechanistic interpretability", "interpretability",
-    "sae", "sparse autoencoder", "residual stream", "monosemantic", "polysemantic",
-    "feature", "circuit", "manifold hypothesis", "sample efficiency", "capability",
-    "emergent", "emergence", "ablation", "probe", "steering", "adversarial",
+JARGON_DIR = Path(__file__).resolve().parents[2] / "shared" / "jargon"
 
-    # Data & Training
-    "dataset", "corpus", "tokenization", "token", "vocabulary", "context window",
-    "batch size", "learning rate", "weight decay", "dropout", "regularization",
-    "cross-entropy", "perplexity", "accuracy", "overfitting", "generalization",
 
-    # Architecture
-    "convolution", "cnn", "rnn", "lstm", "gru", "encoder", "decoder", "seq2seq",
-    "autoencoder", "gan", "diffusion", "normalization", "batch norm", "layer norm",
-    "skip connection", "residual", "pooling", "upsampling",
+# Ordinary English words that were in the seed glossary (see
+# shared/jargon/ambiguous.json). Subtracted from every vocabulary. Fix #2
+# merged the old Node list in here, which brought terms like "this" and "type"
+# onto this side for the first time; this takes them back out.
+# VOXPLAIN_KEEP_AMBIGUOUS_TERMS=1 disables the subtraction, for measurement
+# only (ml/tune_stopwords.py).
+def _ambiguous_terms() -> Set[str]:
+    if os.getenv("VOXPLAIN_KEEP_AMBIGUOUS_TERMS") == "1":
+        return set()
+    path = JARGON_DIR / "ambiguous.json"
+    try:
+        return {t.lower() for t in json.loads(path.read_text())["terms"]}
+    except (OSError, ValueError, KeyError) as exc:
+        print(f"[metrics] Could not load ambiguous.json: {exc}")
+        return set()
 
-    # NLP/Vision
-    "nlp", "natural language", "vision", "transformer", "object detection",
-    "segmentation", "classification", "sentiment analysis", "translation",
 
-    # Optimization
-    "quantization", "pruning", "distillation", "compression", "sparsity",
-    "mixture of experts", "pipeline parallelism", "data parallelism",
+def _load_terms(domain: str) -> Set[str]:
+    """Terms for one domain file. Missing file yields an empty set rather than
+    an exception — a jargon list is an enrichment, not a hard dependency, and
+    the service should still start if the directory did not ship."""
+    path = JARGON_DIR / f"{domain}.json"
+    try:
+        terms = {t.lower() for t in json.loads(path.read_text())["terms"]}
+    except (OSError, ValueError, KeyError) as exc:
+        print(f"[metrics] Could not load jargon for '{domain}' from {path}: {exc}")
+        return set()
+    return terms - _ambiguous_terms()
 
-    # Evaluation
-    "bleu", "rouge", "metric", "benchmark", "evaluation", "annotation",
 
-    # Infrastructure
-    "api", "async", "cache", "bandwidth", "buffer", "cpu", "gpu", "latency",
-    "throughput", "loop", "recursion", "algorithm", "data structure", "hash",
-    "variable", "function", "parameter", "namespace", "daemon", "socket",
-    "protocol", "serialization", "abstraction", "interface", "inheritance",
-    "polymorphism", "encapsulation", "debugging", "breakpoint", "compiler",
-    "middleware", "framework", "library", "dependency", "version control",
-    "git", "repository", "merge", "rebase", "commit", "branch", "pull request",
-    "ci/cd", "docker", "kubernetes", "container", "virtualization", "microservices",
-    "rest", "graphql", "websocket", "http", "https", "ssl", "encryption",
-    "authentication", "authorization", "session", "token", "jwt", "oauth",
-    "database", "sql", "nosql", "query", "index", "transaction", "acid",
-}
-
-FINANCE_JARGON = {
-    "derivatives", "futures", "options", "hedge", "arbitrage", "leverage",
-    "liquidity", "volatility", "yield", "maturity", "coupon", "principal",
-    "amortization", "depreciation", "appreciation", "valuation", "discounted",
-    "cash flow", "roi", "irr", "npv", "wacc", "ebitda", "p/e ratio",
-    "sharpe ratio", "beta", "alpha", "correlation", "covariance",
-    "portfolio", "diversification", "rebalancing", "asset allocation",
-    "bond", "equity", "security", "collateral", "margin", "swap",
-    "credit default", "credit rating", "spread", "basis points",
-}
-
-MEDICAL_JARGON = {
-    "diagnosis", "prognosis", "etiology", "pathology", "syndrome",
-    "comorbidity", "contraindication", "prophylaxis", "palliative",
-    "biopsy", "lesion", "necrosis", "inflammation", "fibrosis",
-    "stenosis", "aneurysm", "embolism", "thrombosis", "ischemia",
-    "metabolism", "homeostasis", "osmosis", "diffusion", "perfusion",
-    "innervation", "vascularization", "lymphatic", "immune response",
-}
+TECH_JARGON = _load_terms("tech")
+FINANCE_JARGON = _load_terms("finance")
+MEDICAL_JARGON = _load_terms("medical")
+# "general" and "other" are real choices in the product but are not domains
+# with their own vocabulary, so they get every term at once. This used to
+# happen by accident, via a fallthrough; now it is the documented behaviour.
+ALL_JARGON = _load_terms("all") or (TECH_JARGON | FINANCE_JARGON | MEDICAL_JARGON)
 
 DOMAIN_JARGON = {
     "tech": TECH_JARGON,
     "finance": FINANCE_JARGON,
     "medical": MEDICAL_JARGON,
     "healthcare": MEDICAL_JARGON,
+    "general": ALL_JARGON,
+    "other": ALL_JARGON,
+    "all": ALL_JARGON,
 }
+
 
 
 # ── Readability Functions ───────────────────────────────────────

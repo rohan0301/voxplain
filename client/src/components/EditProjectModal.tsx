@@ -2,6 +2,7 @@ import type { Project } from '../types/Project';
 import { X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useAudienceInference, AudienceInferenceNote } from './AudienceInference';
 
 interface EditProjectModalProps {
     project: Project;
@@ -24,6 +25,7 @@ export const EditProjectModal = ({ project, onClose, onSave }: EditProjectModalP
 
     const [audienceLevel, setAudienceLevel] = useState<0 | 1 | 2 | 3>(project.audienceLevel ?? 1);
     const [domain, setDomain] = useState(project.domain || 'general');
+    const { inferred, isInferring, infer, clear } = useAudienceInference();
 
     // Lock Body Scroll
     useEffect(() => {
@@ -188,9 +190,22 @@ export const EditProjectModal = ({ project, onClose, onSave }: EditProjectModalP
                                 <textarea
                                     value={audience}
                                     onChange={(e) => setAudience(e.target.value)}
+                                    onBlur={(e) => infer(e.target.value)}
                                     placeholder="Who are you presenting to?"
                                     rows={2}
                                     className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-900 placeholder:text-slate-400 resize-none"
+                                />
+                                <AudienceInferenceNote
+                                    inferred={inferred}
+                                    isInferring={isInferring}
+                                    currentLevel={audienceLevel}
+                                    currentDomain={domain}
+                                    onApply={(level, inferredDomain) => {
+                                        if (level !== null) setAudienceLevel(level);
+                                        if (inferredDomain) setDomain(inferredDomain);
+                                        clear();
+                                    }}
+                                    onDismiss={clear}
                                 />
                             </div>
                             <div className="space-y-4">

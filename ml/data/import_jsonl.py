@@ -1,13 +1,24 @@
-"""One-shot backfill: import legacy JSONL labels into the Supabase labels table.
+"""Import JSONL labels into the Supabase labels table.
 
-Before labels moved to Postgres they were appended to local JSONL files, which
-Render's ephemeral filesystem wiped on every deploy. These are the rows that
-survived on developer machines. They have no user_id.
+Originally a one-shot backfill of legacy local JSONL files (labels used to be
+appended to disk, which Render's ephemeral filesystem wiped on every deploy).
+It is now also the bulk-entry path for hand labelling: write a JSONL, check it
+with --dry-run, then push it.
 
 Safe to re-run: rows already present in the table (matched on
 text/label/audience_level/domain) are skipped.
 
-    python data/import_jsonl.py [--dry-run]
+    python data/import_jsonl.py --dry-run                 # default sources
+    python data/import_jsonl.py --file data/labels_new.jsonl --dry-run
+    python data/import_jsonl.py --file data/labels_new.jsonl
+
+**Do not write new labels into ml/data/labels.jsonl.** That file is the output
+of pull_labels.py and is overwritten every time it runs — anything you add
+there is lost on the next pull. Use a separate file and pass --file.
+
+Every row inserted is stamped source='human', so only put rows here that a
+human actually decided. The eval gate is meaningless if machine-generated
+labels enter the table as human ones.
 """
 import argparse
 import json
@@ -79,6 +90,14 @@ def read_source(path: Path) -> list[dict]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true", help="report what would be inserted")
+    parser.add_argument(
+        "--file",
+        type=Path,
+        action="append",
+        dest="files",
+        help="JSONL to import instead of the default legacy sources. "
+             "Repeatable. Use this for new hand-labelled batches.",
+    )
     args = parser.parse_args()
 
     url = os.environ.get("SUPABASE_URL")
@@ -88,9 +107,18 @@ def main() -> None:
 
     client = create_client(url, key)
 
+    sources = args.files if args.files else SOURCES
+    if args.files:
+        missing = [p for p in sources if not p.exists()]
+        if missing:
+            raise SystemExit(
+                "These --file paths do not exist:\n  "
+                + "\n  ".join(str(p) for p in missing)
+            )
+
     print("Reading local JSONL:")
     local: dict[tuple, dict] = {}
-    for path in SOURCES:
+    for path in sources:
         for row in read_source(path):
             local.setdefault(dedupe_key(row), row)
     print(f"{len(local)} unique rows across sources")

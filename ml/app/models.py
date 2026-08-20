@@ -8,7 +8,7 @@ FastAPI uses these to:
 """
 
 from pydantic import BaseModel, Field
-from typing import Literal, List
+from typing import Literal, List, Optional
 
 
 # ── Request Models ──────────────────────────────────────────────
@@ -76,6 +76,12 @@ class HealthResponse(BaseModel):
 
     status: str
     model_loaded: bool
+    # Whether this service is *meant* to load the model (LOAD_BERT_MODEL).
+    # Without it, model_loaded=False is ambiguous: the model being switched
+    # off and the model failing to load look identical to callers, and they
+    # are different problems. The server distinguishes them for the
+    # degradation banner (Fix #3).
+    model_enabled: bool = False
 
 
 # ── Technicality Metrics Models ─────────────────────────────────
@@ -115,3 +121,46 @@ class MetricsResponse(BaseModel):
     )
     risk_level: str = Field(description="'low', 'medium', or 'high'.")
     recommendations: List[str]
+
+
+# ── Audience Profile Models (Fix #1) ────────────────────────────
+
+
+class AudienceProfileRequest(BaseModel):
+    """Request to infer an audience profile from free text."""
+
+    description: str = Field(
+        default="",
+        description="Free-text audience description, e.g. 'board of directors, non-technical'.",
+        examples=["board of directors, non-technical, finance background"],
+    )
+
+
+class AudienceProfileResponse(BaseModel):
+    """Inferred audience profile.
+
+    `audience_level` and `domain` are null when nothing matched. Null means
+    "unknown" and callers must not quietly substitute a number for it — see
+    Fix #4: a score computed against an invented audience has to say so.
+    """
+
+    audience_level: Optional[int] = Field(
+        default=None,
+        ge=0,
+        le=3,
+        description="Inferred level, or null when the description gave no signal.",
+    )
+    domain: Optional[str] = Field(
+        default=None,
+        description="Inferred domain, or null when no domain cue was found.",
+    )
+    confidence: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="0-1, based on how many cues matched. Not a probability.",
+    )
+    matched: List[str] = Field(
+        default_factory=list,
+        description="The cue phrases found, so the UI can show its work.",
+    )

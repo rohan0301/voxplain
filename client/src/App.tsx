@@ -6,7 +6,8 @@ import { Report } from './components/Report';
 import { WritingStudioPage } from './pages/WritingStudioPage';
 import { TeleprompterPage } from './pages/TeleprompterPage';
 import { transcribeAudio, analyzeTechnicality, saveRecording, listRecordings, deleteRecording } from './api';
-import type { TranscriptionResult, TechnicalityResult, SavedRecording } from './api';
+import type { TranscriptionResult, TechnicalityResult, SavedRecording, AnalysisProvenance } from './api';
+import { AnalysisModeBanner, AudienceScopeNote } from './components/AnalysisModeBanner';
 import { VideoRecorderModal } from './components/VideoRecorder/VideoRecorderModal';
 import { PracticeResults } from './components/VideoRecorder/PracticeResults';
 import type { PracticeAnalysisResult } from './types/PracticeResult';
@@ -72,6 +73,8 @@ const estimateSpeechTime = (text: string) => {
 function App() {
   const [report, setReport] = useState<TranscriptionResult | null>(null);
   const [technicalityResult, setTechnicalityResult] = useState<TechnicalityResult | null>(null);
+  // Which signals produced technicalityResult; drives the degradation banner.
+  const [analysisProvenance, setAnalysisProvenance] = useState<AnalysisProvenance | null>(null);
   const [showMoreLabels, setShowMoreLabels] = useState(false);
   const [storageWarning, setStorageWarning] = useState<string | null>(null);
   const [practiceResult, setPracticeResult] = useState<PracticeAnalysisResult | null>(null);
@@ -343,8 +346,10 @@ function App() {
         domain: activeProject?.domain
       });
       setTechnicalityResult(res.technicality);
+      setAnalysisProvenance(res.analysis ?? null);
     } catch (err) {
       console.error(err);
+      setAnalysisProvenance(null);
       setError("Analysis failed. Please try again.");
     } finally {
       setIsProcessing(false);
@@ -637,6 +642,7 @@ function App() {
                       domain={activeProject?.domain}
                       projectId={activeProject?.id}
                       projectName={activeProject?.name}
+                      onSetAudience={() => setEditingProject(activeProject ?? null)}
                     />
                   ) : (
                     <TeleprompterPage
@@ -662,10 +668,18 @@ function App() {
                     </h2>
                     <p className="text-slate-500 text-sm">Analyze how well your content matches your audience.</p>
                   </div>
-                  {activeProject?.audienceLevel !== undefined && (
+                  {activeProject?.audienceLevel !== undefined ? (
                     <div className="px-3 py-1 bg-slate-100 rounded-full text-xs font-semibold text-slate-600 border border-slate-200">
                       Audience Level: {['Novice', 'Familiar', 'Strong', 'Expert'][activeProject.audienceLevel]}
                     </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setEditingProject(activeProject ?? null)}
+                      className="px-3 py-1 bg-amber-50 rounded-full text-xs font-semibold text-amber-700 border border-amber-200 hover:bg-amber-100"
+                    >
+                      Audience Level: not set
+                    </button>
                   )}
                 </div>
 
@@ -731,6 +745,15 @@ function App() {
                   </div>
                 ) : (
                   <div className="space-y-6">
+                    {/* Degradation notice — silent unless something is wrong */}
+                    <AnalysisModeBanner analysis={analysisProvenance} />
+
+                    {/* Every score names the audience it was computed for */}
+                    <AudienceScopeNote
+                      analysis={analysisProvenance}
+                      onSetAudience={() => setEditingProject(activeProject ?? null)}
+                    />
+
                     {/* Top Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {/* 1. Technical Load Score */}

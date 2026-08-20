@@ -194,8 +194,44 @@ export interface TechnicalityHotspot {
     endWordIndex?: number;
     terms: string[];
     reasons: string[];
+    /**
+     * Human-readable fixes. Since Fix #5 Stage A the concrete swaps come
+     * first — 'Replace "dyspnea" with "shortness of breath"' — followed by
+     * the generic advice for terms with no known equivalent.
+     */
     suggestions: string[];
+    /** The same swaps, structured, for a richer render than a bullet list. */
+    replacements?: Array<{ term: string; plain: string }>;
     localWPM?: number;
+}
+
+/**
+ * Why an analysis is less than fully informed.
+ *
+ * 'ml_service_unreachable' is the one that changes what the user is looking
+ * at: domain-specific vocabulary lives entirely in the ML half, so without it
+ * the chosen domain has no effect on the score whatsoever.
+ */
+export type AnalysisDegradation =
+    | 'ml_service_unreachable'
+    | 'model_disabled'
+    | 'model_failed_to_load';
+
+export interface AnalysisProvenance {
+    /** 'model' once Phase 2 lands; 'metrics' is the healthy state today. */
+    mode: 'model' | 'metrics' | 'heuristic';
+    degraded: AnalysisDegradation[];
+    /** The audience level the score was actually computed for. */
+    audienceLevel: AudienceLevel;
+    /**
+     * Where that level came from. 'default' means nobody chose it — the score
+     * is against an audience the user never named. 'inferred' is reserved for
+     * Fix #1 (deriving a level from the free-text description) and is not
+     * emitted yet.
+     */
+    audienceLevelSource: 'project' | 'inferred' | 'default';
+    domain: string;
+    modelVersion: string | null;
 }
 
 export interface TechnicalityResult {
@@ -411,7 +447,9 @@ export interface AnalyzePayload {
     domain?: string;
 }
 
-export async function analyzeTechnicality(payload: AnalyzePayload): Promise<{ technicality: TechnicalityResult }> {
+export async function analyzeTechnicality(
+    payload: AnalyzePayload
+): Promise<{ technicality: TechnicalityResult; analysis?: AnalysisProvenance }> {
     const headers = await authHeaders();
 
     const response = await fetch(apiUrl('/analyze-technicality'), {
@@ -495,6 +533,58 @@ export interface MetricsResponse {
     technicality_score: number;
     risk_level: 'low' | 'medium' | 'high';
     recommendations: string[];
+}
+
+/**
+ * What the rules made of a free-text audience description.
+ *
+ * `audienceLevel`/`domain` are null when the description gave no signal.
+ * Null means unknown — never quietly substitute 1, or the score ends up
+ * computed against an audience nobody chose (see Fix #4).
+ */
+export interface InferredAudienceProfile {
+    audienceLevel: AudienceLevel | null;
+    domain: string | null;
+    /** 0-1, from how many cues matched. Not a probability. */
+    confidence: number;
+    /** The phrases that matched, so the UI can show its work. */
+    matched: string[];
+}
+
+/**
+ * Infer an audience profile from a description. Never throws: a failure is
+ * reported as "nothing inferred" so the project form keeps working when the
+ * analyzer is unavailable.
+ */
+export async function inferAudienceProfile(description: string): Promise<InferredAudienceProfile> {
+    const empty: InferredAudienceProfile = {
+        audienceLevel: null, domain: null, confidence: 0, matched: [],
+    };
+    if (!description.trim()) return empty;
+
+    try {
+        const response = await fetch(apiUrl('/analyze/audience'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description }),
+        });
+        if (!response.ok) return empty;
+
+        const data = await response.json() as {
+            audience_level: number | null;
+            domain: string | null;
+            confidence: number;
+            matched: string[];
+        };
+        return {
+            audienceLevel: (data.audience_level ?? null) as AudienceLevel | null,
+            domain: data.domain ?? null,
+            confidence: data.confidence ?? 0,
+            matched: data.matched ?? [],
+        };
+    } catch {
+        return empty;
+    }
 }
 
 export async function getMetrics(payload: MetricsRequest): Promise<MetricsResponse> {

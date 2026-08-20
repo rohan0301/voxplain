@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import type { TextAnalysis } from './useTextAnalysis';
 import { Sparkles, AlertCircle, BrainCircuit, Target, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
 import { LabelButtons } from '../LabelButtons';
+import { AnalysisModeBanner, AudienceScopeNote } from '../AnalysisModeBanner';
+import type { AnalysisProvenance } from '../../api';
 import type { AudienceLevel } from '../../types/Project';
 
 interface AnalysisPanelProps {
@@ -14,6 +16,10 @@ interface AnalysisPanelProps {
     projectId?: string | null;
     audienceLevel?: AudienceLevel;
     domain?: string;
+    /** Which signals produced `analysis`; drives the degradation banner. */
+    provenance?: AnalysisProvenance | null;
+    /** Opens the audience picker when the level was defaulted. */
+    onSetAudience?: () => void;
 }
 
 export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
@@ -27,7 +33,9 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
     // Deliberately NOT defaulted: a label saved against an assumed level is a
     // permanently mislabeled training row. LabelButtons prompts when it's unset.
     audienceLevel,
-    domain = 'general'
+    domain = 'general',
+    provenance,
+    onSetAudience
 }) => {
     const [showMoreLabels, setShowMoreLabels] = useState(false);
 
@@ -126,6 +134,12 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                     </div>
                 ) : (
                     <div className="space-y-6 animate-fade-in pb-4">
+
+                        {/* Degradation notice — silent unless something is wrong */}
+                        <AnalysisModeBanner analysis={provenance} />
+
+                        {/* Every score names the audience it was computed for */}
+                        <AudienceScopeNote analysis={provenance} onSetAudience={onSetAudience} />
 
                         {/* Summary Card (Primary Metric) */}
                         <div className={`p-4 rounded-xl border ${getStatusInfo(analysis.status).color}`}>
