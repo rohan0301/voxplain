@@ -25,5 +25,14 @@ ml/model_distilbert
 # ml/THRESHOLD_RETUNE_FINDINGS.md). Cheap to rebuild, noisy in diffs.
 ml/data/node_scores/
 
-# Internal planning docs — keep local, not on GitHub
+# Internal docs — keep local, not on GitHub. This repo is public.
+# README.md and QUICKSTART.md are the exceptions and stay tracked.
+# Everything matched here still exists locally; it is untracked, not deleted.
+# Decided 2026-08-19.
 AUDIENCE_ENGINE_PLAN.md
+AUDIENCE_ENGINE_*.md
+*_FINDINGS.md
+DEPLOYMENT_PLAN.md
+client/README.md
+ml/METRICS_README.md
+server/src/legacy/README.md
