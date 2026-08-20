@@ -21,5 +21,9 @@ ml/__pycache__
 ml/**/__pycache__
 ml/model_distilbert
 
+# Derived: regenerate with server/scripts/score_rows.ts (see
+# ml/THRESHOLD_RETUNE_FINDINGS.md). Cheap to rebuild, noisy in diffs.
+ml/data/node_scores/
+
 # Internal planning docs — keep local, not on GitHub
 AUDIENCE_ENGINE_PLAN.md

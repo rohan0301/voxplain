@@ -2,10 +2,66 @@ import type { TechnicalityResult, TechnicalityHotspot, AudienceLevel } from '../
 
 interface AnalyzeInput {
     transcriptText: string;
-    words?: Array<{ text: string; startSec: number; endSec: number }>;
     audienceLevel?: AudienceLevel;
+
+    /**
+     * Accepted and ignored. Callers already send both, and they are what a
+     * pacing check would need, so they are kept on the interface rather than
+     * ripped out of the request path. Nothing in this file reads them today —
+     * do not assume timing affects the score.
+     */
+    words?: Array<{ text: string; startSec: number; endSec: number }>;
     requiredTimeSec?: number | null;
 }
+
+/**
+ * SCORING — the constants that decide what gets flagged.
+ *
+ * Measured 2026-08-19 on 607 labelled rows (ml/tune_cv.py, 5-fold CV,
+ * out-of-fold). What ships below scores accuracy 0.799, precision 0.847,
+ * recall 0.355, F1 0.500 once blended with /analyze/metrics in
+ * server/src/index.ts.
+ *
+ * Read that as: when it flags a sentence it is right ~85% of the time, and it
+ * stays quiet about roughly two thirds of the sentences a human called
+ * confusing. Refitting the ladder to maximise F1 raises recall to 0.733 but
+ * drops accuracy to 0.656 and precision to 0.436 — a trade, not an
+ * improvement, and McNemar puts the extra total errors well outside noise
+ * (p < 1e-6). The ladder was therefore left where it is; see
+ * ml/tune_operating_points.py for the alternatives and their real numbers.
+ *
+ * Before changing any number here, re-run ml/tune_cv.py. These are not
+ * arbitrary any more, and the obvious "improvements" have been tried.
+ */
+const SCORING = {
+    densityWeight: 300,        // technical-term density -> points (10% -> 30)
+    clumpWeight: 4,            // per term in the longest consecutive run
+    criticalClumpSize: 5,      // runs longer than this take an extra penalty
+    criticalClumpPenalty: 15,
+    explainedDiscount: 0.3,    // max reduction when every term is explained
+    statusBand: 15,            // +/- around the threshold that counts as "near"
+} as const;
+
+/**
+ * Score above which content is "above" the audience, per audience level.
+ * 0 = novice, 3 = expert.
+ *
+ * NOTE: /analyze/metrics already scales its half of the blend by
+ * (1 - level/4) in ml/app/metrics.py:391, so audience is accounted for twice
+ * in the blended path — once in that factor and once here. The Node score
+ * below is audience-independent, so this ladder is the only adjustment it
+ * gets. Removing the double discount and refitting was measured and did not
+ * beat this; see the SCORING note above.
+ */
+const AUDIENCE_THRESHOLDS: Record<number, number> = {
+    0: 20, // Novice (VERY strict)
+    1: 40, // Familiar
+    2: 60, // Strong
+    3: 80, // Expert
+};
+
+/** Used when audienceLevel is absent or out of range — same as level 1. */
+const DEFAULT_THRESHOLD = 40;
 
 const COMMON_TECHNICAL_TERMS = new Set([
     // AI/ML Core
@@ -91,7 +147,7 @@ const COMMON_TECHNICAL_TERMS = new Set([
 ]);
 
 export function analyzeTechnicality(input: AnalyzeInput): TechnicalityResult {
-    const { transcriptText, words, audienceLevel = 1, requiredTimeSec } = input;
+    const { transcriptText, audienceLevel = 1 } = input;
 
     // --- A. Segmentation ---
     // Improved segmentation: handle abbreviations (e.g., e.g., i.e.) roughly, but split mainly by .!?
@@ -189,46 +245,19 @@ export function analyzeTechnicality(input: AnalyzeInput): TechnicalityResult {
     const explainedRate = globalTechCount > 0 ? explainedCount / globalTechCount : 1;
 
     // --- E. Scoring ---
-    // Adjust formula:
-    // Base Score = (Density * 1000) + (MaxClump * 5)
-    // Penalize if MaxClump > 4 drastically
-    // Credit for explained
+    // See SCORING at the top of this file for what these constants are and
+    // what is known about whether they are any good.
 
     const density = globalTechCount / wordCount; // e.g. 0.05
-    let rawScore = (density * 100) * 2; // 5% -> 10 pts
 
-    // Add Clump Penalty
-    if (maxClump > 3) rawScore += (maxClump * 3);
-    if (maxClump > 6) rawScore += 20; // Critical clump penalty
+    let rawScore = density * SCORING.densityWeight;
+    rawScore += maxClump * SCORING.clumpWeight;
+    if (maxClump > SCORING.criticalClumpSize) rawScore += SCORING.criticalClumpPenalty;
+    rawScore = rawScore * (1 - explainedRate * SCORING.explainedDiscount);
 
-    // Discount for explanation
-    rawScore = rawScore * (1 - (explainedRate * 0.4)); // Max 40% reduction if fully explained
+    const threshold = AUDIENCE_THRESHOLDS[audienceLevel] ?? DEFAULT_THRESHOLD;
 
-    const thresholdMap: Record<number, number> = {
-        0: 20, // Novice (VERY strict)
-        1: 40, // Familiar
-        2: 60, // Strong
-        3: 80  // Expert
-    };
-    const threshold = thresholdMap[audienceLevel] ?? 40;
-
-    // Clamp 0-100
-    // If rawScore is around 30, and threshold is 20, it should be "Above".
-    // 30 score -> ?? 
-    // Let's normalize rawScore to likely 0-100 range.
-    // If 15 words density 20% -> 3 words technically.
-    // Density 10% is very high. (0.1 * 100 * 2) = 20 pts.
-    // + Clump (3) * 3 = 9. Total 29.
-    // Seems low. Let's bump multiplier.
-
-    rawScore = (density * 300); // 10% density -> 30pts
-    rawScore += (maxClump * 4); // Clump 5 -> 20pts
-    if (maxClump > 5) rawScore += 15;
-
-    // Reduction
-    rawScore = rawScore * (1 - (explainedRate * 0.3));
-
-    let technicalLoadScore = Math.max(1, Math.min(100, Math.round(rawScore)));
+    const technicalLoadScore = Math.max(1, Math.min(100, Math.round(rawScore)));
 
     // Ensure "Too Simple" is rare: if score < 10 and threshold > 30
     // Actually we adjust status labeling logic instead of score here.
@@ -283,8 +312,8 @@ export function analyzeTechnicality(input: AnalyzeInput): TechnicalityResult {
 
     // --- G. Status Determination ---
     let status: "below" | "near" | "above" = "near";
-    if (technicalLoadScore < threshold - 15) status = "below";
-    else if (technicalLoadScore > threshold + 15) status = "above";
+    if (technicalLoadScore < threshold - SCORING.statusBand) status = "below";
+    else if (technicalLoadScore > threshold + SCORING.statusBand) status = "above";
 
     // Summary Text
     let summary = "";

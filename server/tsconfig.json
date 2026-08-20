@@ -1,5 +1,9 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
+
+  // scripts/ holds offline tooling run through tsx (see scripts/score_rows.ts).
+  // It lives outside rootDir on purpose and must not go into the build.
+  "exclude": ["scripts", "dist", "node_modules"],
   "compilerOptions": {
     // File Layout
     "rootDir": "./src",
