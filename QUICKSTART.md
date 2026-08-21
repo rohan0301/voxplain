@@ -215,7 +215,6 @@ Vite will automatically try the next available port. Check the terminal output f
 - 🎤 Try recording a practice presentation
 - 📊 Analyze your speech metrics
 - 🔍 Review your transcript
-- 🚀 Deploy to production (see DEPLOYMENT_PLAN.md)
 - 🤝 Contribute to the project on GitHub
 
 ## API Keys Reference

@@ -465,6 +465,87 @@ export async function analyzeTechnicality(
     return response.json();
 }
 
+/**
+ * Fix #6 — one script, several audiences, side by side.
+ *
+ * `levels` must name at least two distinct audiences. There is deliberately no
+ * default: unlike a single analysis, which falls back to "Familiar" and says
+ * so (Fix #4), a comparison against audiences the caller did not choose has
+ * nothing to say.
+ */
+export interface CompareAudiencesPayload {
+    transcriptText: string;
+    levels: AudienceLevel[];
+    domain?: string;
+    words?: Array<{ text: string; startSec: number; endSec: number }>;
+    requiredTimeSec?: number | null;
+}
+
+/**
+ * A sentence the compared audiences do not need to hear the same way.
+ *
+ * Today this is derived from the plain-language substitutions each level
+ * requires (Fix #5 Stage A), not from which sentences are flagged: hotspot
+ * selection reads term counts, never the audience level. When the model is
+ * wired into scoring the flag set itself becomes audience-sensitive and this
+ * list gets richer — that is the intended smoke test for Phase 2.
+ */
+export interface DivergentSentence {
+    sentence: string;
+    terms: string[];
+    /** Level (string key) → the swaps that audience needs. */
+    byLevel: Record<string, Array<{ term: string; plain: string }>>;
+    /** Audiences this sentence loses as written. */
+    losesLevels: AudienceLevel[];
+    /** Audiences it already lands with. */
+    landsLevels: AudienceLevel[];
+}
+
+export interface AudienceComparison {
+    /** Level (string key) → the full result computed for that audience. */
+    results: Record<string, TechnicalityResult>;
+    divergence: {
+        sentences: DivergentSentence[];
+        statusAgrees: boolean;
+        /**
+         * True when every level produced the same number. That is the normal
+         * state with the ML service down, because the Node half of the blend
+         * is audience-independent — worth saying out loud rather than letting
+         * the user conclude the audience setting does nothing.
+         */
+        scoresIdentical: boolean;
+    };
+    analysis: {
+        mode: 'model' | 'metrics' | 'heuristic';
+        degraded: AnalysisDegradation[];
+        levels: AudienceLevel[];
+        domain: string;
+        modelVersion: string | null;
+    };
+}
+
+export async function compareAudiences(
+    payload: CompareAudiencesPayload
+): Promise<AudienceComparison> {
+    const headers = await authHeaders();
+
+    const response = await fetch(apiUrl('/analyze-technicality/compare'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+        // The 400s here name a specific bad input — an out-of-range level, or
+        // fewer than two of them. Passing that through beats a generic
+        // failure, because it is the one thing the caller can act on.
+        const body = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(body?.error || `Audience comparison failed (${response.status}).`);
+    }
+
+    return response.json();
+}
+
 export interface LabelPayload {
     text: string;
     label: 0 | 1;

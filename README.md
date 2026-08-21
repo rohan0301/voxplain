@@ -72,7 +72,6 @@ For development setup instructions, API key configuration, and running the appli
 ## Future Roadmap
 
 - 📊 **Progress Tracking** - Save reports and track improvements over time
-- 👤 **User Accounts** - Sign up to manage your presentation history
 - 🎥 **Video Analysis** - Add body language and visual delivery analysis
 - 🌍 **Multiple Languages** - Support for presentations in different languages
 - 🤝 **Collaboration** - Share presentations and get peer feedback

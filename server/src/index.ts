@@ -6,14 +6,14 @@ import fs from 'fs';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { processAudio } from './services/transcription.js';
-import { analyzeTechnicality, STATUS_BAND } from './services/technicality.js';
 import { preloadJargon } from './services/jargon.js';
+import { scoreForAudience } from './services/audienceScoring.js';
+import { compareAudiences, parseLevels } from './services/audienceCompare.js';
 import {
     getMlStatus,
     mlServiceUrl,
     noteMlReachable,
     startMlHealthPolling,
-    type MlDegradation,
 } from './services/mlHealth.js';
 import { transcribeLimiter, analyzeLimiter, labelsLimiter } from './middleware/rateLimit.js';
 import type { AudienceLevel } from './types.js';
@@ -84,15 +84,6 @@ const upload = multer({
     dest: path.join(__dirname, '../uploads/'),
     limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit
 });
-
-/**
- * Analysis provenance, returned alongside every technicality result.
- *
- * 'model'     the trained model contributed (plan Phase 2, not wired yet)
- * 'metrics'   heuristic + /analyze/metrics — the normal state today
- * 'heuristic' the Node heuristic alone, because the ML service did not answer
- */
-type AnalysisMode = 'model' | 'metrics' | 'heuristic';
 
 // Routes
 app.get('/health', (req, res) => {
@@ -236,96 +227,16 @@ app.post('/api/analyze-technicality', analyzeLimiter, async (req, res) => {
         const audienceLevelSource: 'project' | 'inferred' | 'default' =
             hasExplicitLevel ? 'project' : 'default';
 
-        // Get base technicality score
-        const result = analyzeTechnicality({
+        // The blend — base heuristic plus whichever ML signals answer — lives
+        // in services/audienceScoring.ts, because /compare below needs exactly
+        // the same computation and two copies of it would drift.
+        const { result, mode, degraded, modelVersion } = await scoreForAudience({
             transcriptText,
             words,
             audienceLevel: resolvedLevel,
             requiredTimeSec,
-            // Before Fix #2 this half of the blend ignored domain entirely.
-            domain
+            domain,
         });
-
-        // --- Enrich with metrics from the ML service -------------------
-        //
-        // Every signal is optional and the score is renormalised by the
-        // weights that actually contributed, so a missing signal changes the
-        // score's confidence rather than silently deflating it. What the user
-        // must never get is a degraded score presented as a normal one, so
-        // whatever happens here is reported in `analysis` below.
-        const signals: Array<{ score: number; weight: number }> = [
-            { score: result.technicalLoadScore, weight: 0.5 },
-        ];
-        const degraded: MlDegradation[] = [];
-        let mode: AnalysisMode = 'heuristic';
-        let metrics: { technicality_score: number } | null = null;
-
-        try {
-            const metricsResponse = await fetch(`${mlServiceUrl()}/analyze/metrics`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    text: transcriptText,
-                    audience_level: resolvedLevel,
-                    domain
-                })
-            });
-
-            if (metricsResponse.ok) {
-                metrics = await metricsResponse.json();
-                noteMlReachable(true);
-            } else {
-                console.warn(`Metrics enrichment failed: HTTP ${metricsResponse.status}`);
-                noteMlReachable(false);
-            }
-        } catch (err) {
-            console.warn('Metrics enrichment failed, using base score:', err);
-            noteMlReachable(false);
-        }
-
-        if (metrics) {
-            // Metrics are more sensitive to modern jargon and complexity.
-            signals.push({ score: metrics.technicality_score * 100, weight: 0.5 });
-            mode = 'metrics';
-            // The model is not wired into scoring yet (plan Phase 2). When it
-            // is, push it here with the larger weight and set mode = 'model';
-            // the renormalisation below already handles a third signal.
-            const modelDegradation = getMlStatus().degraded
-                .filter(d => d !== 'ml_service_unreachable');
-            degraded.push(...modelDegradation);
-        } else {
-            // Domain is used *only* by the metrics half, so without it domain
-            // has no effect on the score at all. That is the thing the banner
-            // has to tell the user about.
-            degraded.push('ml_service_unreachable');
-        }
-
-        const totalWeight = signals.reduce((sum, s) => sum + s.weight, 0);
-        const blended = Math.round(
-            signals.reduce((sum, s) => sum + s.score * s.weight, 0) / totalWeight
-        );
-        result.technicalLoadScore = Math.max(1, Math.min(100, blended));
-
-        // Status and summary follow the score that was actually produced,
-        // whichever signals went into it.
-        const threshold = result.audienceThreshold;
-        if (result.technicalLoadScore < threshold - STATUS_BAND) {
-            result.status = "below";
-        } else if (result.technicalLoadScore > threshold + STATUS_BAND) {
-            result.status = "above";
-        } else {
-            result.status = "near";
-        }
-
-        if (result.status === "above") {
-            result.summary = "Your content is significantly more technical than your target audience level. Jargon density is high.";
-        } else if (result.status === "below") {
-            result.summary = "Your content is very accessible. Ensure you aren't over-simplifying key concepts if the audience expects depth.";
-        } else {
-            result.summary = "You are generally on target, but watch out for specific dense clusters identified below.";
-        }
-
-        if (metrics) (result as any).metrics = metrics;
 
         res.json({
             technicality: result,
@@ -335,12 +246,57 @@ app.post('/api/analyze-technicality', analyzeLimiter, async (req, res) => {
                 audienceLevel: resolvedLevel,
                 audienceLevelSource,
                 domain,
-                modelVersion: null,
+                modelVersion,
             },
         });
     } catch (error) {
         console.error('Technicality analysis failed:', error);
         res.status(500).json({ error: 'Analysis failed' });
+    }
+});
+
+/**
+ * Fix #6 — the same script, scored against several audiences at once.
+ *
+ * Deliberately a separate route rather than a `levels` parameter on the
+ * analysis endpoint: the single-analysis path defaults a missing level and
+ * reports where it came from (Fix #4), and there is no sensible default for
+ * "which audiences are you comparing". Requests here must say.
+ *
+ * See services/audienceCompare.ts for what genuinely differs between
+ * audiences today — less than the UI could be tempted to imply.
+ */
+app.post('/api/analyze-technicality/compare', analyzeLimiter, async (req, res) => {
+    try {
+        const { transcriptText, words, requiredTimeSec, domain = 'general', levels } = req.body;
+
+        if (!transcriptText) {
+            res.status(400).json({ error: 'transcriptText is required' });
+            return;
+        }
+
+        let parsedLevels;
+        try {
+            parsedLevels = parseLevels(levels);
+        } catch (err) {
+            // A bad level list is the caller's mistake and is worth naming
+            // precisely — this is the one input the endpoint cannot guess.
+            res.status(400).json({ error: (err as Error).message });
+            return;
+        }
+
+        const comparison = await compareAudiences({
+            transcriptText,
+            levels: parsedLevels,
+            domain,
+            words,
+            requiredTimeSec,
+        });
+
+        res.json(comparison);
+    } catch (error) {
+        console.error('Audience comparison failed:', error);
+        res.status(500).json({ error: 'Comparison failed' });
     }
 });
 

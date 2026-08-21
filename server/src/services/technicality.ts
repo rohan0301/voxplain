@@ -17,8 +17,8 @@ interface AnalyzeInput {
      * ripped out of the request path. Nothing in this file reads them today —
      * do not assume timing affects the score.
      */
-    words?: Array<{ text: string; startSec: number; endSec: number }>;
-    requiredTimeSec?: number | null;
+    words?: Array<{ text: string; startSec: number; endSec: number }> | undefined;
+    requiredTimeSec?: number | null | undefined;
 }
 
 /**

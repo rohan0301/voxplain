@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { WritingEditor } from '../components/WritingStudio/WritingEditor';
 import { AnalysisPanel } from '../components/WritingStudio/AnalysisPanel';
+import { AudienceCompare } from '../components/WritingStudio/AudienceCompare';
 import { useTextAnalysis } from '../components/WritingStudio/useTextAnalysis';
 import type { AudienceLevel } from '../types/Project';
 import { Clock, FileText, Save, Trash2 } from 'lucide-react';
@@ -197,6 +198,21 @@ export const WritingStudioPage: React.FC<WritingStudioPageProps> = ({
                         onSetAudience={onSetAudience}
                     />
                 </div>
+            </div>
+
+            {/*
+              * Fix #6. Full width rather than inside the analysis column: the
+              * point of the view is several audiences side by side, which does
+              * not fit a four-column sidebar. Independent of the main analysis
+              * — it runs its own request, so comparing does not disturb the
+              * result the user is already looking at.
+              */}
+            <div className="mt-4 shrink-0">
+                <AudienceCompare
+                    script={script}
+                    domain={domain}
+                    audienceLevel={audienceLevel}
+                />
             </div>
 
             <div className="mt-4 shrink-0 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
