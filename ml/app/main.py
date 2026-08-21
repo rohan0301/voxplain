@@ -32,7 +32,11 @@ from .models import (
     MetricsResponse,
     AudienceProfileRequest,
     AudienceProfileResponse,
+    SentenceAnalysisRequest,
+    SentenceAnalysisResponse,
+    ScoredSentence,
 )
+import re
 
 
 # ── Lifespan (startup / shutdown) ───────────────────────────────
@@ -174,3 +178,65 @@ def analyze_audience(req: AudienceProfileRequest):
     override it.
     """
     return AudienceProfileResponse(**infer_profile(req.description))
+
+
+# Same splitter metrics.py uses, so the two halves agree on what a sentence is.
+_SENTENCE_SPLIT = re.compile(r"[.!?]+")
+
+# Fragments shorter than this are titles, list items, and stray punctuation.
+# Scoring them produces confident nonsense and drags the document average.
+MIN_SENTENCE_WORDS = 4
+
+
+@app.post("/analyze/sentences", response_model=SentenceAnalysisResponse)
+def analyze_sentences(req: SentenceAnalysisRequest):
+    """
+    Score each sentence for confusingness at the target audience level.
+
+    The sentence is the unit that matters: hotspots are sentences, and a
+    single document-level number cannot tell a speaker which part to fix.
+
+    503 when the model is not loaded — unlike /analyze/metrics there is no
+    heuristic fallback here, and returning zeros would be a lie the caller
+    could not detect. The server treats a 503 as "model unavailable" and
+    falls back to the blended heuristic (Fix #3).
+    """
+    if not model_service.is_loaded:
+        raise HTTPException(status_code=503, detail="model_not_loaded")
+
+    candidates = [s.strip() for s in _SENTENCE_SPLIT.split(req.text) if s.strip()]
+    sentences = [s for s in candidates if len(s.split()) >= MIN_SENTENCE_WORDS]
+    skipped = len(candidates) - len(sentences)
+
+    if not sentences:
+        return SentenceAnalysisResponse(
+            sentences=[], document_score=0.0, worst=[],
+            model_version=model_service.version, skipped=skipped,
+        )
+
+    # One batched pass, not one call per sentence — see predict_many().
+    preds = model_service.predict_many(
+        sentences,
+        audience_level=req.audience_level,
+        domain=req.domain,
+    )
+
+    scored = [
+        ScoredSentence(
+            sentence=sentence,
+            p_confusing=pred["p_confusing"],
+            prediction=pred["prediction"],
+        )
+        for sentence, pred in zip(sentences, preds)
+    ]
+
+    document_score = round(sum(s.p_confusing for s in scored) / len(scored), 4)
+    worst = sorted(scored, key=lambda s: -s.p_confusing)[:5]
+
+    return SentenceAnalysisResponse(
+        sentences=scored,
+        document_score=document_score,
+        worst=worst,
+        model_version=model_service.version,
+        skipped=skipped,
+    )

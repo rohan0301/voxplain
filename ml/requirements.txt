@@ -1,4 +1,19 @@
+# Runtime deps for the ML service. The EC2 deploy installs exactly this file
+# (.github/workflows/deploy.yml runs `pip install -r requirements.txt`), so
+# anything the service imports at runtime has to be here — requirements-train.txt
+# is for training only and is never installed on the box.
+#
+# torch and transformers are needed to serve the model at all. They were absent
+# until 2026-08-19, which is why LOAD_BERT_MODEL=false was the only workable
+# setting in production regardless of whether weights were present.
+#
+# CPU-only wheels: the instance has no GPU, and the default CUDA build pulls
+# ~2GB of nvidia libraries that would never be used.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
 pydantic>=2.0.0
 numpy
+torch>=2.0.0
+transformers>=4.40.0

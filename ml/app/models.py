@@ -164,3 +164,40 @@ class AudienceProfileResponse(BaseModel):
         default_factory=list,
         description="The cue phrases found, so the UI can show its work.",
     )
+
+
+# ── Sentence Analysis Models (Phase 2) ──────────────────────────
+
+
+class SentenceAnalysisRequest(BaseModel):
+    """Request to score each sentence of a passage for the target audience."""
+
+    text: str = Field(..., min_length=1, description="The passage to analyze.")
+    audience_level: int = Field(default=1, ge=0, le=3)
+    domain: str = Field(default="general")
+
+
+class ScoredSentence(BaseModel):
+    """One sentence and what the model made of it."""
+
+    sentence: str
+    p_confusing: float = Field(description="0-1 probability the model assigns to 'confusing'.")
+    prediction: str = Field(description="'clear' or 'confusing'.")
+
+
+class SentenceAnalysisResponse(BaseModel):
+    """Per-sentence scores plus a document roll-up.
+
+    `model_version` is not decoration: scores from two different training runs
+    are not comparable, and without it a stored score cannot be interpreted
+    later. It is null only if the artifact predates version stamping.
+    """
+
+    sentences: List[ScoredSentence]
+    document_score: float = Field(description="Mean p_confusing across scored sentences.")
+    worst: List[ScoredSentence] = Field(description="Up to 5 most confusing, worst first.")
+    model_version: Optional[str] = None
+    skipped: int = Field(
+        default=0,
+        description="Fragments too short to score meaningfully (< 4 words).",
+    )

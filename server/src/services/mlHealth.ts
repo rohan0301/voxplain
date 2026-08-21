@@ -113,3 +113,78 @@ export function stopMlHealthPolling(): void {
     clearInterval(timer);
     timer = null;
 }
+
+
+/**
+ * Whether the model's sentence scores are allowed to affect the blended score.
+ *
+ * Deliberately opt-in and off by default. The model that exists today was
+ * trained on data that is 95% synthetic and predicts "clear" for almost
+ * everything; letting it move user-visible scores before it has beaten the
+ * heuristic on human labels would make the product worse in a way nobody
+ * would notice. The endpoint is wired and exercised; the weight is not.
+ *
+ * Flip MODEL_SCORING=on only after `eval_compare.py --test-file
+ * data/test_human.jsonl` passes on real labels (plan §1.5 and Phase 2).
+ */
+export const modelScoringEnabled = (): boolean =>
+    ['1', 'true', 'yes', 'on'].includes(
+        (process.env.MODEL_SCORING ?? '').trim().toLowerCase()
+    );
+
+export interface SentenceScore {
+    sentence: string;
+    p_confusing: number;
+    prediction: string;
+}
+
+export interface SentenceScores {
+    documentScore: number;
+    worst: SentenceScore[];
+    modelVersion: string | null;
+}
+
+/**
+ * Per-sentence model scores for a passage, or null if the model is not
+ * serving. Never throws: a model that is down must degrade to the heuristic,
+ * not fail the request.
+ */
+export async function fetchSentenceScores(
+    text: string,
+    audienceLevel: number,
+    domain: string,
+): Promise<SentenceScores | null> {
+    try {
+        const response = await fetch(`${mlServiceUrl()}/analyze/sentences`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, audience_level: audienceLevel, domain }),
+        });
+
+        // 503 is the documented "model not loaded" answer, not an outage: the
+        // service itself is up, so do not mark it unreachable.
+        if (response.status === 503) return null;
+        if (!response.ok) {
+            noteMlReachable(false);
+            return null;
+        }
+
+        noteMlReachable(true);
+        const body = await response.json() as {
+            document_score?: number;
+            worst?: SentenceScore[];
+            model_version?: string | null;
+        };
+        if (typeof body.document_score !== 'number') return null;
+
+        return {
+            documentScore: body.document_score,
+            worst: body.worst ?? [],
+            modelVersion: body.model_version ?? null,
+        };
+    } catch (err) {
+        console.warn('Sentence scoring failed:', err);
+        noteMlReachable(false);
+        return null;
+    }
+}

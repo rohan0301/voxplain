@@ -23,6 +23,10 @@ class ModelService:
         self.tokenizer = None
         self._torch = None
         self.is_loaded: bool = False
+        # First line of model_distilbert/version.txt, e.g. "20260810-232218".
+        # Every score the model produces is reported with this, because
+        # "the model said 0.8" is not a fact until you know which model.
+        self.version: str | None = None
 
     def load(self) -> None:
         """Load model + tokenizer from disk into memory."""
@@ -47,8 +51,20 @@ class ModelService:
         self.model = AutoModelForSequenceClassification.from_pretrained(str(MODEL_DIR), local_files_only=True)
         self._torch = torch
         self.model.eval()
+        self.version = self._read_version()
         self.is_loaded = True
-        print("[ModelService] Model loaded successfully.")
+        print(f"[ModelService] Model loaded successfully (version {self.version}).")
+
+    @staticmethod
+    def _read_version() -> str | None:
+        """Training stamps a version.txt; an older artifact may not have one."""
+        path = MODEL_DIR / "version.txt"
+        try:
+            first = path.read_text().splitlines()[0].strip()
+            return first or None
+        except (OSError, IndexError):
+            print(f"[ModelService] No version.txt at {path}; version unknown.")
+            return None
 
     def unload(self) -> None:
         """Release model resources."""
@@ -56,6 +72,7 @@ class ModelService:
         self.tokenizer = None
         self._torch = None
         self.is_loaded = False
+        self.version = None
         print("[ModelService] Model unloaded.")
 
     def predict(
@@ -98,6 +115,61 @@ class ModelService:
             "p_clear": round(p_clear, 4),
             "p_confusing": round(p_confusing, 4),
         }
+
+
+    def predict_many(
+        self,
+        texts: list[str],
+        audience_level: int = 1,
+        domain: str = "general",
+        batch_size: int = 32,
+    ) -> list[dict]:
+        """
+        Score several texts with one forward pass per batch.
+
+        A document is a list of sentences, and looping predict() over them
+        re-tokenises and re-enters the graph once per sentence. On the CPU box
+        this service runs on that is slow enough to be visible in the writing
+        studio's live analysis, which is the whole reason this exists.
+
+        Same audience_level and domain for every text: they come from one
+        project, so batching across them is safe.
+        """
+        if not self.is_loaded:
+            raise RuntimeError("Model is not loaded. Call load() first.")
+        if not texts:
+            return []
+
+        aud = AUDIENCE_MAP.get(audience_level, "some")
+        prompts = [
+            f"AUDIENCE={aud} DOMAIN={domain} TEXT={t.strip()}"
+            for t in texts
+        ]
+
+        results: list[dict] = []
+        for start in range(0, len(prompts), batch_size):
+            enc = self.tokenizer(
+                prompts[start:start + batch_size],
+                return_tensors="pt",
+                truncation=True,
+                padding=True,
+                max_length=256,
+            )
+            with self._torch.no_grad():
+                logits = self.model(**enc).logits
+                probs = self._torch.softmax(logits, dim=-1).cpu().numpy()
+
+            for row in probs:
+                p_clear = float(row[0])
+                p_confusing = float(row[1])
+                results.append({
+                    "prediction": "confusing" if p_confusing >= p_clear else "clear",
+                    "confidence": round(max(p_clear, p_confusing), 4),
+                    "p_clear": round(p_clear, 4),
+                    "p_confusing": round(p_confusing, 4),
+                })
+
+        return results
 
 
 # Module-level singleton — shared across the app
